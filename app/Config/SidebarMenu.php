@@ -11,14 +11,14 @@ class SidebarMenu
             'url'   => '/dashboard',
         ],
         [
-            'title' => 'Data Produk',
-            'icon'  => 'fas fa-box',
-            'url'   => '/produk',
-        ],
-        [
             'title' => 'Kategori Produk',
             'icon'  => 'fas fa-list',
             'url'   => '/kategori',
+        ],
+        [
+            'title' => 'Data Produk',
+            'icon'  => 'fas fa-box',
+            'url'   => '/produk',
         ],
         [
             'title' => 'Kelola Pesan',
@@ -34,6 +34,11 @@ class SidebarMenu
             'title' => 'Kontak',
             'icon'  => 'fas fa-address-book',
             'url'   => '/kontak',
+        ],
+        [
+            'title' => 'Logout',
+            'icon'  => 'fas fa-sign-out-alt',
+            'url'   => '/logout',
         ],
     ];
 }
