@@ -93,7 +93,7 @@ class Produk extends Controller
 
         $gambar = $this->request->getFile('gambar');
 
-        if ($gambar) {
+        if ($gambar->isFile()) {
             $data['gambar'] = $gambar->getRandomName();
             $gambar->move('assets/image/product/', $data['gambar']);
         }
