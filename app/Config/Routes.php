@@ -7,29 +7,28 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+$routes->get('/pemesanan', 'Pemesanan::index');
+$routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
+
 $routes->group('', ['filter' => 'guest'], function ($routes) {
     $routes->get('/login', 'Auth::login');
     $routes->post('login', 'Auth::postLogin');
-
     $routes->get('/register', 'Auth::register');
 });
 
-
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/logout', 'Auth::logout');
-
     $routes->get('/dashboard', 'Dashboard::index');
-
+    
     $routes->get('/kategori', 'Kategori::index');
     $routes->get('/kategori/tambah', 'Kategori::new');
     $routes->post('/kategori/simpan', 'Kategori::save');
     $routes->get('/kategori/ubah/(:num)', 'Kategori::edit/$1');
     $routes->post('/kategori/update/(:num)', 'Kategori::update/$1');
     $routes->get('/kategori/hapus/(:num)', 'Kategori::delete/$1');
-
+    
     $routes->get('/produk', 'Produk::index');
     $routes->get('/pesan', 'Pesan::index');
     $routes->get('/laporan', 'Laporan::index');
     $routes->get('/kontak', 'Kontak::index');
 });
-
