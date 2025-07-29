@@ -28,6 +28,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/kategori/hapus/(:num)', 'Kategori::delete/$1');
 
     $routes->get('/produk', 'Produk::index');
+    $routes->get('/produk/tambah', 'Produk::new');
+    $routes->post('/produk/simpan', 'Produk::save');
+    $routes->get('/produk/ubah/(:num)', 'Produk::edit/$1');
+    $routes->post('/produk/update/(:num)', 'Produk::update/$1');
+    $routes->get('/produk/hapus/(:num)', 'Produk::delete/$1');
+
     $routes->get('/pesan', 'Pesan::index');
     $routes->get('/laporan', 'Laporan::index');
     $routes->get('/kontak', 'Kontak::index');

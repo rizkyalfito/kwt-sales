@@ -30,7 +30,7 @@ class Kategori extends Controller
     {
         $sidebarMenu = \Config\SidebarMenu::$menuItems;
         $data = [
-            'title' => 'Kategori Produk',
+            'title' => 'Tambah Kategori Produk',
             'sidebarMenu' => $sidebarMenu,
         ];
         return view('pages/kategori/tambah', $data);
@@ -58,7 +58,7 @@ class Kategori extends Controller
     {
         $sidebarMenu = \Config\SidebarMenu::$menuItems;
         $data = [
-            'title' => 'Kategori Produk',
+            'title' => 'Edit Kategori Produk',
             'sidebarMenu' => $sidebarMenu,
             'category' => $this->kategoriModel->find($id),
         ];
