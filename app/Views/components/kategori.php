@@ -11,88 +11,62 @@
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0" placeholder="Cari kategori...">
+                    <input type="text" id="searchCategory" class="form-control border-start-0" placeholder="Cari kategori...">
                 </div>
             </div>
         </div>
 
         <!-- Category Grid -->
-        <div class="row g-4 justify-content-center">
-            <!-- Category 1 - Sayuran -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm border-0 category-card">
-                    <div class="card-body text-center p-4">
-                        <!-- Placeholder Image -->
-                        <div class="category-img-placeholder bg-white rounded shadow-sm mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 120px; border: 2px solid #dee2e6; position: relative;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <i class="bi bi-image text-muted fs-3"></i>
+        <div class="row g-4 justify-content-center" id="categoryGrid">
+            <?php if (!empty($categories)) : ?>
+                <?php foreach ($categories as $category) : ?>
+                    <div class="col-lg-4 col-md-6 category-item">
+                        <div class="card h-100 shadow-sm border-0 category-card" onclick="viewProducts(<?= $category['id'] ?>)">
+                            <div class="card-body text-center p-4">
+                                <!-- Placeholder Image -->
+                                <div class="category-img-placeholder bg-white rounded shadow-sm mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 120px; border: 2px solid #dee2e6; position: relative;">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                        <i class="bi bi-image text-muted fs-3"></i>
+                                    </div>
+                                    <!-- X lines for placeholder -->
+                                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 150 120">
+                                        <line x1="15" y1="15" x2="135" y2="105" stroke="#6c757d" stroke-width="1"/>
+                                        <line x1="135" y1="15" x2="15" y2="105" stroke="#6c757d" stroke-width="1"/>
+                                    </svg>
+                                </div>
+                                
+                                <h4 class="fw-bold mb-3 text-success category-name"><?= esc($category['nama_kategori']) ?></h4>
+                                <p class="text-muted mb-4">Produk berkualitas kategori <?= esc($category['nama_kategori']) ?></p>
+                                
+                                <button class="btn btn-outline-success w-100 rounded-pill">
+                                    <i class="bi bi-arrow-right me-2"></i>Lihat Produk
+                                </button>
                             </div>
-                            <!-- X lines for placeholder -->
-                            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 150 120">
-                                <line x1="15" y1="15" x2="135" y2="105" stroke="#6c757d" stroke-width="1"/>
-                                <line x1="135" y1="15" x2="15" y2="105" stroke="#6c757d" stroke-width="1"/>
-                            </svg>
                         </div>
-                        
-                        <h4 class="fw-bold mb-3 text-success">Sayuran</h4>
-                        <p class="text-muted mb-4">Bayam, kangkung, terong, dll</p>
-                        
-                        <button class="btn btn-outline-success w-100 rounded-pill">
-                            <i class="bi bi-arrow-right me-2"></i>Lihat Produk
-                        </button>
+                    </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <div class="row mt-4" id="noCategories">
+                    <div class="col-12 text-center">
+                        <div class="d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-basket mb-2 text-muted" style="font-size: 5rem; opacity: 0.5;"></i>
+                            <p class="text-muted mb-4">
+                            Belum ada Kategori yang tersedia.
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
+        </div>
 
-            <!-- Category 2 - Buah-buahan -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm border-0 category-card">
-                    <div class="card-body text-center p-4">
-                        <!-- Placeholder Image -->
-                        <div class="category-img-placeholder bg-white rounded shadow-sm mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 120px; border: 2px solid #dee2e6; position: relative;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <i class="bi bi-image text-muted fs-3"></i>
-                            </div>
-                            <!-- X lines for placeholder -->
-                            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 150 120">
-                                <line x1="15" y1="15" x2="135" y2="105" stroke="#6c757d" stroke-width="1"/>
-                                <line x1="135" y1="15" x2="15" y2="105" stroke="#6c757d" stroke-width="1"/>
-                            </svg>
-                        </div>
-                        
-                        <h4 class="fw-bold mb-3 text-success">Buah-buahan</h4>
-                        <p class="text-muted mb-4">Tomat, jeruk, timun suri, dll</p>
-                        
-                        <button class="btn btn-outline-success w-100 rounded-pill">
-                            <i class="bi bi-arrow-right me-2"></i>Lihat Produk
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category 3 - Lainnya -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm border-0 category-card">
-                    <div class="card-body text-center p-4">
-                        <!-- Placeholder Image -->
-                        <div class="category-img-placeholder bg-white rounded shadow-sm mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 120px; border: 2px solid #dee2e6; position: relative;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <i class="bi bi-image text-muted fs-3"></i>
-                            </div>
-                            <!-- X lines for placeholder -->
-                            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 150 120">
-                                <line x1="15" y1="15" x2="135" y2="105" stroke="#6c757d" stroke-width="1"/>
-                                <line x1="135" y1="15" x2="15" y2="105" stroke="#6c757d" stroke-width="1"/>
-                            </svg>
-                        </div>
-                        
-                        <h4 class="fw-bold mb-3 text-success">Lainnya</h4>
-                        <p class="text-muted mb-4">Bibit, kompos, pupuk, dll</p>
-                        
-                        <button class="btn btn-outline-success w-100 rounded-pill">
-                            <i class="bi bi-arrow-right me-2"></i>Lihat Produk
-                        </button>
-                    </div>
+        <!-- No Results Message -->
+        <div class="row mt-4" id="noResults" style="display: none;">
+            <div class="col-12 text-center">
+                <div class="d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-search mb-2 text-muted" style="font-size: 5rem; opacity: 0.5;"></i>
+                    <p class="text-muted mb-4">
+                    Tidak ada kategori yang sesuai dengan pencarian Anda.
+                    </p>
                 </div>
             </div>
         </div>
@@ -145,7 +119,13 @@
     box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
 }
 
+.category-item {
+    transition: opacity 0.3s ease;
+}
 
+.category-item.hidden {
+    display: none;
+}
 
 @media (max-width: 768px) {
     .display-5 {
@@ -162,3 +142,54 @@
     }
 }
 </style>
+
+<script>
+// Search functionality
+document.getElementById('searchCategory').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const categoryItems = document.querySelectorAll('.category-item');
+    const noResults = document.getElementById('noResults');
+    let visibleCount = 0;
+
+    categoryItems.forEach(function(item) {
+        const categoryName = item.querySelector('.category-name').textContent.toLowerCase();
+        
+        if (categoryName.includes(searchTerm)) {
+            item.style.display = 'block';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    // Show/hide no results message
+    if (visibleCount === 0 && searchTerm !== '') {
+        noResults.style.display = 'block';
+    } else {
+        noResults.style.display = 'none';
+    }
+});
+
+// Function to handle category click
+function viewProducts(categoryId) {
+    // Redirect to products page with category filter
+    window.location.href = '<?= base_url() ?>produk?kategori=' + categoryId;
+}
+
+// Add loading animation when category is clicked
+document.querySelectorAll('.category-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+        const button = this.querySelector('.btn');
+        const originalText = button.innerHTML;
+        
+        button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Memuat...';
+        button.disabled = true;
+        
+        // Reset button after 3 seconds if page doesn't redirect
+        setTimeout(function() {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 3000);
+    });
+});
+</script>
