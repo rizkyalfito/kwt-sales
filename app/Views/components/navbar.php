@@ -20,7 +20,7 @@
           <a class="nav-link" href="#pemesanan">Pemesanan</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#contact">Kontak</a>
+          <a class="nav-link" href="#kontak">Kontak</a>
         </li>
       </ul>
     </div>

@@ -170,10 +170,10 @@ document.getElementById('searchCategory').addEventListener('input', function() {
     }
 });
 
-// Function to handle category click
+// Function to handle category click - Redirect ke halaman produk public
 function viewProducts(categoryId) {
     // Redirect to products page with category filter
-    window.location.href = '<?= base_url() ?>produk?kategori=' + categoryId;
+    window.location.href = '<?= base_url() ?>produk-public?kategori=' + categoryId;
 }
 
 // Add loading animation when category is clicked
