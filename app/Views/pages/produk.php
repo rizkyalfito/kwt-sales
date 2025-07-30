@@ -57,7 +57,7 @@
                                     <a href="<?= base_url('produk/ubah/' . $product['id']) ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="<?= base_url('produk/hapus/' . $product['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus obat ini?')">
+                                    <a href="<?= base_url('produk/hapus/' . $product['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
