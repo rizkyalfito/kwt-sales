@@ -22,18 +22,42 @@
                                 <div class="position-relative">
                                     <select class="form-select form-select-lg border-2 rounded-3" id="productSelect" required>
                                         <option value="">Pilih nama produk</option>
-                                        <optgroup label="Sayuran">
-                                            <option value="kangkung" data-price="4000" data-unit="ikat" data-stock="20">Kangkung - Rp 4.000/ikat</option>
-                                            <option value="bayam" data-price="5000" data-unit="ikat" data-stock="20">Bayam - Rp 5.000/ikat</option>
-                                            <option value="terong" data-price="6000" data-unit="kg" data-stock="12">Terong - Rp 6.000/kg</option>
-                                        </optgroup>
-                                        <optgroup label="Buah-buahan">
-                                            <option value="tomat" data-price="8000" data-unit="kg" data-stock="15">Tomat - Rp 8.000/kg</option>
-                                            <option value="cabai" data-price="20000" data-unit="kg" data-stock="10">Cabai - Rp 20.000/kg</option>
-                                        </optgroup>
-                                        <optgroup label="Bumbu">
-                                            <option value="bawang-merah" data-price="25000" data-unit="kg" data-stock="8">Bawang Merah - Rp 25.000/kg</option>
-                                        </optgroup>
+                                        
+                                        <!-- Generate options from database -->
+                                        <?php if (!empty($produkByKategori)): ?>
+                                            <?php foreach ($produkByKategori as $kategori => $produkList): ?>
+                                                <optgroup label="<?= esc(ucfirst($kategori)) ?>">
+                                                    <?php foreach ($produkList as $produk): ?>
+                                                        <?php 
+                                                        $unit = (stripos($produk['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
+                                                        $isSelected = (isset($selectedProductId) && $selectedProductId == $produk['id']) ? 'selected' : '';
+                                                        ?>
+                                                        <option value="<?= $produk['nama_produk'] ?>" 
+                                                                data-id="<?= $produk['id'] ?>"
+                                                                data-price="<?= $produk['harga'] ?>" 
+                                                                data-unit="<?= $unit ?>" 
+                                                                data-stock="<?= $produk['stok'] ?>"
+                                                                <?= $isSelected ?>>
+                                                            <?= esc($produk['nama_produk']) ?> - Rp <?= number_format($produk['harga'], 0, ',', '.') ?>/<?= $unit ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </optgroup>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <!-- Fallback static options -->
+                                            <optgroup label="Sayuran">
+                                                <option value="kangkung" data-price="4000" data-unit="ikat" data-stock="20">Kangkung - Rp 4.000/ikat</option>
+                                                <option value="bayam" data-price="5000" data-unit="ikat" data-stock="20">Bayam - Rp 5.000/ikat</option>
+                                                <option value="terong" data-price="6000" data-unit="kg" data-stock="12">Terong - Rp 6.000/kg</option>
+                                            </optgroup>
+                                            <optgroup label="Buah-buahan">
+                                                <option value="tomat" data-price="8000" data-unit="kg" data-stock="15">Tomat - Rp 8.000/kg</option>
+                                                <option value="cabai" data-price="20000" data-unit="kg" data-stock="10">Cabai - Rp 20.000/kg</option>
+                                            </optgroup>
+                                            <optgroup label="Bumbu">
+                                                <option value="bawang-merah" data-price="25000" data-unit="kg" data-stock="8">Bawang Merah - Rp 25.000/kg</option>
+                                            </optgroup>
+                                        <?php endif; ?>
                                     </select>
                                     <div class="position-absolute top-50 end-0 translate-middle-y me-3">
                                         <i class="bi bi-chevron-down text-muted"></i>
@@ -191,6 +215,12 @@
     }
 }
 
+/* Selected product highlight */
+.form-select option:checked {
+    background-color: #198754;
+    color: white;
+}
+
 /* Custom animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -199,6 +229,21 @@
 
 #productInfo, #orderSummary {
     animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Auto-selected product notification */
+.auto-selected-notification {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 1px solid #badbcc;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 
@@ -222,6 +267,54 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPrice = 0;
     let currentUnit = '';
     let currentStock = 0;
+
+    // Check if there's a pre-selected product from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedProductId = urlParams.get('produk');
+    
+    if (selectedProductId) {
+        // Find and select the product in dropdown
+        const options = productSelect.querySelectorAll('option');
+        for (let option of options) {
+            if (option.dataset.id === selectedProductId) {
+                option.selected = true;
+                
+                // Show notification about auto-selection
+                showAutoSelectionNotification(option.textContent.split(' - ')[0]);
+                
+                // Trigger change event to populate product info
+                productSelect.dispatchEvent(new Event('change'));
+                break;
+            }
+        }
+    }
+
+    function showAutoSelectionNotification(productName) {
+        const notification = document.createElement('div');
+        notification.className = 'auto-selected-notification';
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <span class="fw-bold text-success">Produk "${productName}" telah dipilih</span>
+            </div>
+            <small class="text-muted d-block mt-1">Anda dapat mengubah pilihan produk jika diperlukan</small>
+        `;
+        
+        // Insert notification before the product selection
+        const productDiv = productSelect.closest('.mb-4');
+        productDiv.parentNode.insertBefore(notification, productDiv);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.style.transition = 'opacity 0.5s ease-out';
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 500);
+        }, 5000);
+    }
 
     // Product selection change
     productSelect.addEventListener('change', function() {
@@ -327,6 +420,11 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPrice = 0;
         currentUnit = '';
         currentStock = 0;
+        
+        // Remove URL parameters after successful submission
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.pathname);
+        }
     });
 });
 </script>

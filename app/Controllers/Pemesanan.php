@@ -16,6 +16,9 @@ class Pemesanan extends Controller
 
     public function index()
     {
+        // Ambil parameter produk dari URL jika ada
+        $selectedProductId = $this->request->getVar('produk');
+        
         // Ambil semua data produk dari database
         $produkData = $this->produkModel->findAll();
         
@@ -29,10 +32,18 @@ class Pemesanan extends Controller
             $produkByKategori[$kategori][] = $produk;
         }
         
+        // Jika ada produk yang dipilih, ambil detail produknya
+        $selectedProduct = null;
+        if ($selectedProductId) {
+            $selectedProduct = $this->produkModel->find($selectedProductId);
+        }
+        
         $data = [
             'title' => 'Pemesanan Produk',
             'produk' => $produkData,
             'produkByKategori' => $produkByKategori,
+            'selectedProductId' => $selectedProductId,
+            'selectedProduct' => $selectedProduct,
         ];
         
         return view('layouts/main', [

@@ -23,18 +23,6 @@
                     <div class="col-lg-4 col-md-6 category-item">
                         <div class="card h-100 shadow-sm border-0 category-card" onclick="viewProducts(<?= $category['id'] ?>)">
                             <div class="card-body text-center p-4">
-                                <!-- Placeholder Image -->
-                                <div class="category-img-placeholder bg-white rounded shadow-sm mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 120px; border: 2px solid #dee2e6; position: relative;">
-                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                        <i class="bi bi-image text-muted fs-3"></i>
-                                    </div>
-                                    <!-- X lines for placeholder -->
-                                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 150 120">
-                                        <line x1="15" y1="15" x2="135" y2="105" stroke="#6c757d" stroke-width="1"/>
-                                        <line x1="135" y1="15" x2="15" y2="105" stroke="#6c757d" stroke-width="1"/>
-                                    </svg>
-                                </div>
-                                
                                 <h4 class="fw-bold mb-3 text-success category-name"><?= esc($category['nama_kategori']) ?></h4>
                                 <p class="text-muted mb-4">Produk berkualitas kategori <?= esc($category['nama_kategori']) ?></p>
                                 
