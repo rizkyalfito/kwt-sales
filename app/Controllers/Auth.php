@@ -25,6 +25,50 @@ class Auth extends Controller
         return view('layouts/auth', ['content' => view('pages/register')]);
     }
 
+    public function postRegister()
+    {
+        // Validasi input terlebih dahulu
+        $validation = $this->validate([
+            'name' => 'required',
+            'username' => 'required|is_unique[users.username]',
+            'email' => 'required|valid_email',
+            'alamat' => 'required',
+            'password' => 'required|min_length[6]',
+        ]);
+
+        if (!$validation) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        // Mulai transaksi database
+        $this->db->transStart();
+
+        $data = [
+            'nama' => $this->request->getVar('name'),
+            'username' => $this->request->getVar('username'),
+            'email' => $this->request->getVar('email'),
+            'alamat' => $this->request->getVar('alamat'),
+            'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+            'level' => 'user'
+        ];
+
+        $this->userModel->insert($data);
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data.');
+        }
+
+        $this->session->set('isLoggedIn', true);
+        $this->session->set('nama', $data['nama']);
+        $this->session->set('level', $data['level']);
+        $this->session->set('alamat', $data['alamat']);
+        $this->session->set('email', $data['email']);
+
+        return redirect()->to('/dashboard');
+    }
+
     public function postLogin()
     {
         $credentials = [

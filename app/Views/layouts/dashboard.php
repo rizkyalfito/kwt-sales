@@ -57,14 +57,19 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <?php foreach ($sidebarMenu as $item): ?>
-          <li class="nav-item">
-            <a href="<?= esc($item['url']) ?>" class="nav-link <?= ($title === $item['title']) ? 'active' : '' ?>">
-              <i class="nav-icon <?= esc($item['icon']) ?>"></i>
-              <p><?= esc($item['title']) ?></p>
-            </a>
-          </li>
-          <?php endforeach; ?>
+            <?php foreach ($sidebarMenu as $item): ?>
+                <?php
+                if ($item['isAdmin'] && session()->get('level') !== 'admin') {
+                    continue;
+                }
+                ?>
+                <li class="nav-item">
+                    <a href="<?= base_url($item['url']) ?>" class="nav-link <?= ($title === $item['title']) ? 'active' : '' ?>">
+                        <i class="nav-icon <?= esc($item['icon']) ?>"></i>
+                        <p><?= esc($item['title']) ?></p>
+                    </a>
+                </li>
+            <?php endforeach; ?>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
