@@ -9,6 +9,11 @@ use Config\Database;
 
 class Produk extends Controller
 {
+    protected $productModel;
+    protected $categoryModel;
+    protected $db;
+    protected $session;
+    
     public function __construct()
     {
         $this->db = Database::connect();
@@ -21,11 +26,13 @@ class Produk extends Controller
     {
         $products = $this->productModel->findAll();
         $sidebarMenu = \Config\SidebarMenu::$menuItems;
+        
         $data = [
             'title' => 'Data Produk',
             'sidebarMenu' => $sidebarMenu,
             'products' => $products
         ];
+        
         return view('pages/produk', $data);
     }
 

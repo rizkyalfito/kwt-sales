@@ -7,7 +7,7 @@
         <?= $this->include('components/produk') ?>
 
     <!-- Kategori Section -->
-        <?= $this->include('components/kategori') ?>
+        <?= $this->include('components/kategori', ['categories' => $categories]) ?>
 
     <!-- Pemesanan Section -->
         <?= $this->include('components/pemesanan') ?>

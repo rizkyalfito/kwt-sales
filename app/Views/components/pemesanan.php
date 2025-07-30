@@ -21,9 +21,9 @@
                         <h3 class="fw-bold mb-3 text-dark">Pesan sekarang</h3>
                         <p class="text-muted mb-4">Langsung pesan produk yang diinginkan dengan mudah dan cepat</p>
                         
-                        <button class="btn btn-success btn-lg px-4 rounded-pill">
+                        <a href="<?= base_url('pemesanan') ?>" class="btn btn-success btn-lg px-4 rounded-pill">
                             <i class="bi bi-cart-plus me-2"></i>Mulai Pesan
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -40,9 +40,9 @@
                         <h3 class="fw-bold mb-3 text-dark">Riwayat pesanan</h3>
                         <p class="text-muted mb-4">Lihat status dan riwayat pemesanan produk yang pernah dipesan</p>
                         
-                        <button class="btn btn-primary btn-lg px-4 rounded-pill">
+                        <a href="<?= base_url('riwayat-pemesanan') ?>" class="btn btn-primary btn-lg px-4 rounded-pill">
                             <i class="bi bi-list-ul me-2"></i>Lihat Riwayat
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -7,17 +7,20 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+$routes->get('/produk-public', 'ProdukPublic::index');
+$routes->get('/produk-public/cari', 'ProdukPublic::cari');
+
+$routes->get('/pemesanan', 'Pemesanan::index');
+$routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
+
 $routes->group('', ['filter' => 'guest'], function ($routes) {
     $routes->get('/login', 'Auth::login');
     $routes->post('login', 'Auth::postLogin');
-
     $routes->get('/register', 'Auth::register');
 });
 
-
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/logout', 'Auth::logout');
-
     $routes->get('/dashboard', 'Dashboard::index');
 
     $routes->get('/kategori', 'Kategori::index');
@@ -43,4 +46,3 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/pesan', 'Pesan::index');
     $routes->get('/laporan', 'Laporan::index');
 });
-

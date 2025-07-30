@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\ProdukModel;
 use CodeIgniter\Controller;
 
-class Home extends Controller
+class ProdukPublic extends Controller
 {
     protected $kategoriModel;
     protected $produkModel;
@@ -18,17 +18,6 @@ class Home extends Controller
     }
 
     public function index()
-    {
-        $data = [
-            'categories' => $this->kategoriModel->findAll()
-        ];
-
-        echo view('layouts/main', [
-            'content' => view('pages/home', $data)
-        ]);
-    }
-
-    public function produk()
     {
         // Ambil parameter dari URL
         $kategori = $this->request->getVar('kategori');
@@ -59,17 +48,18 @@ class Home extends Controller
             'produk' => $produk,
             'categories' => $categories,
             'kategori' => $namaKategori,
-            'keyword' => $keyword
+            'keyword' => $keyword,
+            'title' => 'Produk Pertanian'
         ];
 
-        echo view('layouts/main', [
-            'content' => view('pages/produk', $data)
+        return view('layouts/main', [
+            'content' => view('pages/produk-public', $data)
         ]);
     }
 
-    public function cariProduk()
+    public function cari()
     {
-        // Redirect ke method produk dengan parameter
+        // Redirect ke method index dengan parameter
         $keyword = $this->request->getVar('keyword');
         $kategori = $this->request->getVar('kategori');
         
@@ -83,6 +73,6 @@ class Home extends Controller
         
         $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
         
-        return redirect()->to(base_url('produk-publik' . $queryString));
+        return redirect()->to(base_url('produk-public' . $queryString));
     }
 }
