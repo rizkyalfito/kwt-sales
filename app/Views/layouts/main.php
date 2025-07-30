@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <!-- AdminLTE 3 CSS -->
 </head>
 <body>
     <?= $this->include('components/navbar') ?>

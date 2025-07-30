@@ -20,7 +20,8 @@ class Home extends Controller
     public function index()
     {
         $data = [
-            'categories' => $this->kategoriModel->findAll()
+            'categories' => $this->kategoriModel->findAll(),
+            'produk' => $this->produkModel->findAll() // Tambahkan produk data
         ];
 
         echo view('layouts/main', [
@@ -30,23 +31,17 @@ class Home extends Controller
 
     public function produk()
     {
-        // Ambil parameter dari URL
         $kategori = $this->request->getVar('kategori');
         $keyword = $this->request->getVar('keyword');
-        
-        // Ambil semua kategori untuk dropdown
+
         $categories = $this->kategoriModel->findAll();
-        
-        // Ambil semua produk atau filter berdasarkan kategori/keyword
+
         if (!empty($kategori) || !empty($keyword)) {
-            // Jika ada filter kategori berdasarkan ID dari URL (dari klik card kategori)
             if (!empty($kategori) && is_numeric($kategori)) {
-                // Cari nama kategori berdasarkan ID
                 $categoryData = $this->kategoriModel->find($kategori);
                 $namaKategori = $categoryData ? $categoryData['nama_kategori'] : null;
                 $produk = $this->produkModel->cariProduk($keyword, $namaKategori);
             } else {
-                // Filter berdasarkan nama kategori dari dropdown atau keyword
                 $produk = $this->produkModel->cariProduk($keyword, $kategori);
                 $namaKategori = $kategori;
             }
@@ -65,24 +60,5 @@ class Home extends Controller
         echo view('layouts/main', [
             'content' => view('pages/produk', $data)
         ]);
-    }
-
-    public function cariProduk()
-    {
-        // Redirect ke method produk dengan parameter
-        $keyword = $this->request->getVar('keyword');
-        $kategori = $this->request->getVar('kategori');
-        
-        $queryParams = [];
-        if (!empty($keyword)) {
-            $queryParams['keyword'] = $keyword;
-        }
-        if (!empty($kategori)) {
-            $queryParams['kategori'] = $kategori;
-        }
-        
-        $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
-        
-        return redirect()->to(base_url('produk-publik' . $queryString));
     }
 }
