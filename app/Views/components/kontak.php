@@ -73,7 +73,7 @@
             <div class="col-md-6">
                 <div class="map-container">
                     <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15942.912515076894!2d120.44984004999999!3d-2.59459755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d91994fa17ad765%3A0x31e8bb60ee7072db!2sTulungsari%2C%20Kec.%20Sukamaju%2C%20Kabupaten%20Luwu%20Utara%2C%20Sulawesi%20Selatan!5e0!3m2!1sid!2sid!4v1754037614833!5m2!1sid!2sid" 
+                        src="https://www.google.com/maps/embed?pb=!4v1754051488645!6m8!1m7!1snwnIA13WOzncDuB-wG96Rw!2m2!1d-2.593198011196051!2d120.4498579884243!3f289.1313948551698!4f-27.37457435391233!5f0.4000000000000002" 
                         width="100%" 
                         height="250" 
                         style="border:1px solid #ddd; border-radius: 8px;" 
