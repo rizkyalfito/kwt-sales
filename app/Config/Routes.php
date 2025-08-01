@@ -10,6 +10,7 @@ $routes->get('/', 'Home::index');
 $routes->get('/produk-public', 'ProdukPublic::index');
 $routes->get('/produk-public/cari', 'ProdukPublic::cari');
 
+$routes->get('/kontak', 'KontakPublic::kontak');
 
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/pemesanan', 'Pemesanan::index');

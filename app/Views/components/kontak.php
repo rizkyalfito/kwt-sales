@@ -1,6 +1,5 @@
-<!-- Telepon -->
-              <!-- Bootstrap Icons CDN -->
-              <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
 <section id="kontak" class="py-4 bg-white">
     <div class="container">
@@ -12,18 +11,44 @@
                 
                 <!-- Contact List -->
                 <div class="contact-list">
-                    <!-- Telepon -->
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="contact-icon me-3">
-                            <i class="bi bi-telephone-fill fs-5"></i>
+                    <?php if (isset($kontak) && $kontak): ?>
+                        <!-- WhatsApp/Telepon dari Database -->
+                        <?php if (!empty($kontak['no_wa'])): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-telephone fs-5 "></i>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">Telepon</span>
+                                <span class="text-muted ms-2">: <?= esc($kontak['no_wa']) ?></span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="fw-semibold">Telpon</span>
-                            <span class="text-muted ms-2">: 0821-1234-5786</span>
-                        </div>
-                    </div>
+                        <?php endif; ?>
 
-                    <!-- Facebook -->
+                        <?php if (!empty($kontak['email'])): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-envelope-fill fs-5 text-danger"></i>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">Email</span>
+                                <span class="text-muted ms-2">: <?= esc($kontak['email']) ?></span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($kontak['alamat'])): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-geo-alt-fill fs-5 text-primary"></i>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">Alamat</span>
+                                <span class="text-muted ms-2">: <?= esc($kontak['alamat']) ?></span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
                     <div class="d-flex align-items-center mb-3">
                         <div class="contact-icon me-3">
                             <i class="bi bi-facebook fs-5 text-primary"></i>
@@ -34,7 +59,6 @@
                         </div>
                     </div>
 
-                    <!-- Instagram -->
                     <div class="d-flex align-items-center mb-3">
                         <div class="contact-icon me-3">
                             <i class="bi bi-instagram fs-5" style="color: #E4405F;"></i>
@@ -46,12 +70,10 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Map -->
             <div class="col-md-6">
                 <div class="map-container">
                     <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.4970349524574!2d106.75563367426565!3d-6.329584393659981!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69efdb49fe8dc7%3A0xaf70ae56c831c60!2sKELOMPOK%20WANITA%20TANI%20(KWT)%20GARUDA%20PPM%20RW%2012!5e0!3m2!1sid!2sid!4v1753254818860!5m2!1sid!2sid" 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15942.912515076894!2d120.44984004999999!3d-2.59459755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d91994fa17ad765%3A0x31e8bb60ee7072db!2sTulungsari%2C%20Kec.%20Sukamaju%2C%20Kabupaten%20Luwu%20Utara%2C%20Sulawesi%20Selatan!5e0!3m2!1sid!2sid!4v1754037614833!5m2!1sid!2sid" 
                         width="100%" 
                         height="250" 
                         style="border:1px solid #ddd; border-radius: 8px;" 
