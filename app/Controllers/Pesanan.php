@@ -42,4 +42,46 @@ class Pesanan extends Controller
             return redirect()->to('/pesanan')->with('error', 'Status Pesanan Gagal Diubah');
         }
     }
+
+    public function getSalesPerMonth($status)
+    {
+        // Validasi input status (jika perlu)
+        $allowedStatus = ['selesai', 'dibatalkan', 'dikirim'];
+        if (!in_array($status, $allowedStatus)) {
+            return $this->response->setJSON([
+                'error' => 'Status tidak valid.'
+            ])->setStatusCode(400);
+        }
+
+        // Ambil data total per bulan untuk status tertentu
+        $builder = $this->db->table('pemesanan');
+        $builder->select("DATE_FORMAT(tanggal_pesan, '%Y-%m') as bulan, SUM(total_harga) as total");
+        $builder->where('status', $status);
+        $builder->groupBy('bulan');
+        $builder->orderBy('bulan', 'ASC');
+
+        $result = $builder->get()->getResult();
+
+        // Format hasil ke dalam mapping bulan => total
+        $salesData = [];
+        foreach ($result as $row) {
+            $salesData[$row->bulan] = (float) $row->total;
+        }
+
+        // Generate bulan 1-12 untuk tahun berjalan
+        $year = date('Y');
+        $labels = [];
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $bulan = sprintf('%s-%02d', $year, $i);
+            $labels[] = $bulan;
+            $data[] = $salesData[$bulan] ?? 0;
+        }
+
+        return $this->response->setJSON([
+            'labels' => $labels,
+            'data' => $data
+        ]);
+    }
 }
