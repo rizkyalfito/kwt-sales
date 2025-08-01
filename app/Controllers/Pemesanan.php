@@ -4,18 +4,26 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\ProdukModel;
+use App\Models\PemesananModel;
 
 class Pemesanan extends Controller
 {
     protected $produkModel;
+    protected $pemesananModel;
     
     public function __construct()
     {
         $this->produkModel = new ProdukModel();
+        $this->pemesananModel = new PemesananModel();
     }
 
     public function index()
     {
+        // Cek login
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu untuk melakukan pemesanan');
+        }
+        
         // Ambil parameter produk dari URL jika ada
         $selectedProductId = $this->request->getVar('produk');
         
@@ -44,6 +52,8 @@ class Pemesanan extends Controller
             'produkByKategori' => $produkByKategori,
             'selectedProductId' => $selectedProductId,
             'selectedProduct' => $selectedProduct,
+            'userNama' => session()->get('nama'),
+            'userAlamat' => session()->get('alamat'),
         ];
         
         return view('layouts/main', [
@@ -53,36 +63,56 @@ class Pemesanan extends Controller
     
     public function submitOrder()
     {
-        // Validasi input
-        $validation = \Config\Services::validation();
-        
-        $validation->setRules([
-            'product' => 'required',
-            'quantity' => 'required|integer|greater_than[0]',
-            'name' => 'required|min_length[3]',
-            'phone' => 'required|min_length[10]',
-            'address' => 'required|min_length[10]'
-        ]);
-        
-        if (!$validation->withRequest($this->request)->run()) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        try {
+            // Cek login
+            if (!session()->get('isLoggedIn')) {
+                return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
+            }
+            
+            // Ambil data user dari session
+            $userNama = session()->get('nama');
+            $userAlamat = session()->get('alamat');
+            $userId = session()->get('user_id'); // Assuming user id is stored in session as 'user_id'
+            
+            // Validasi input sederhana
+            $productId = $this->request->getPost('product');
+            $quantity = $this->request->getPost('quantity');
+            $notes = $this->request->getPost('notes');
+            
+            // Cek input wajib
+            if (!$productId || !$quantity) {
+                return redirect()->back()->withInput()->with('error', 'Mohon lengkapi produk dan jumlah');
+            }
+            
+            // Ambil data produk
+            $produk = $this->produkModel->find($productId);
+            if (!$produk) {
+                return redirect()->back()->withInput()->with('error', 'Produk tidak ditemukan');
+            }
+            
+            // Hitung total harga
+            $totalHarga = $produk['harga'] * $quantity;
+            
+            // Siapkan data untuk disimpan
+            $orderData = [
+                'user' => $userId,
+                'produk' => $productId,
+                'jumlah' => $quantity,
+                'total_harga' => $totalHarga,
+                'catatan' => $notes ? $notes : null,
+            ];
+            
+            // Simpan ke database menggunakan method simpanPemesanan
+            if ($this->pemesananModel->simpanPemesanan($orderData)) {
+                return redirect()->to('/pemesanan')->with('success', 'Pesanan berhasil dikirim!');
+            } else {
+                $errors = $this->pemesananModel->errors();
+                return redirect()->back()->withInput()->with('error', 'Gagal menyimpan pesanan: ' . implode(', ', $errors));
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat submit order: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
-        
-        // Proses data pesanan
-        $orderData = [
-            'product_id' => $this->request->getPost('product'),
-            'quantity' => $this->request->getPost('quantity'),
-            'customer_name' => $this->request->getPost('name'),
-            'customer_phone' => $this->request->getPost('phone'),
-            'customer_address' => $this->request->getPost('address'),
-            'notes' => $this->request->getPost('notes'),
-            'order_date' => date('Y-m-d H:i:s'),
-            'status' => 'pending'
-        ];
-        
-        // Di sini Anda bisa menyimpan ke database atau kirim ke WhatsApp admin
-        // Untuk contoh, kita redirect dengan pesan sukses
-        
-        return redirect()->to('/pemesanan')->with('success', 'Pesanan berhasil dikirim! Admin akan menghubungi Anda segera.');
     }
 }

@@ -10,7 +10,12 @@ $routes->get('/', 'Home::index');
 $routes->get('/produk-public', 'ProdukPublic::index');
 $routes->get('/produk-public/cari', 'ProdukPublic::cari');
 
-$routes->get('/pemesanan', 'Pemesanan::index');
+
+$routes->group('', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/pemesanan', 'Pemesanan::index');
+    $routes->post('/pemesanan/submit', 'Pemesanan::submitOrder');
+});
+
 $routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
 
 $routes->group('', ['filter' => 'guest'], function ($routes) {
