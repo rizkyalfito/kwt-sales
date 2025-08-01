@@ -27,13 +27,13 @@
                     </h1>
                     
                     <!-- Subtitle -->
-                    <p class="display-8 lead text-muted mb-5 fs-5" style="max-width: 1000px; margin: 0 auto;">
+                    <p class="display-8 lead text-muted mb-4 fs-5" style="max-width: 1000px; margin: 0 auto;">
                         Platform digital yang menghubungkan Kelompok Wanita Tani dengan konsumen untuk menyediakan produk pertanian segar, sehat, dan berkualitas tinggi
                     </p>
                     
                     <!-- CTA Buttons -->
                     <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
-                        <a href="#produk" class="btn btn-success btn-lg px-5 py-3 rounded-pill shadow-sm">
+                        <a href="#produk" class="btn btn-success btn-lg px-3 py-2 rounded-pill shadow-sm">
                             <i class="bi bi-basket3 me-2"></i>Jelajahi Produk
                         </a>
                     </div>

@@ -4,24 +4,30 @@ namespace App\Controllers;
 
 use App\Models\Category;
 use App\Models\ProdukModel;
+use App\Models\Kontak;
 use CodeIgniter\Controller;
 
 class Home extends Controller
 {
     protected $kategoriModel;
     protected $produkModel;
+    protected $kontakModel;
 
     public function __construct()
     {
         $this->kategoriModel = new Category();
         $this->produkModel = new ProdukModel();
+        $this->kontakModel = new Kontak();
     }
 
     public function index()
     {
+        $kontak = $this->kontakModel->first();
+
         $data = [
             'categories' => $this->kategoriModel->findAll(),
-            'produk' => $this->produkModel->findAll() // Tambahkan produk data
+            'produk' => $this->produkModel->findAll(), 
+            'kontak' => $kontak
         ];
 
         echo view('layouts/main', [

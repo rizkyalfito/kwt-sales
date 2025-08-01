@@ -16,5 +16,13 @@ class UserSeeder extends Seeder
             'level' => 'admin',
             'email' => 'admin@gmail.com'
         ]);
+        $this->db->table('users')->insert([
+            'nama' => 'user',
+            'username' => 'user',
+            'password' => password_hash('qwerty', PASSWORD_DEFAULT),
+            'alamat' => 'Bekasi',
+            'level' => 'user',
+            'email' => 'user@gmail.com'
+        ]);
     }
 }

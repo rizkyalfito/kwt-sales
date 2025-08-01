@@ -105,7 +105,9 @@
                         </div>
                         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
                             <button class="btn btn-light btn-lg px-4 rounded-pill">
-                                <i class="bi bi-telephone me-2"></i>Hubungi Kami
+                                <a href="https://wa.me/6282112345786" style="text-decoration: none; color:black;">
+                                    <i class="bi bi-telephone me-2"></i>Hubungi Kami
+                                </a>
                             </button>
                         </div>
                     </div>

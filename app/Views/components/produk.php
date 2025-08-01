@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <!-- Price Info -->
                         <div class="mb-2">
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-currency-dollar text-success me-2"></i>
+                                <i class=" text-success me-2"></i>
                                 <span class="fw-bold text-success fs-5">
                                     ${formatRupiah(item.harga)}
                                 </span>
