@@ -24,9 +24,9 @@ class SidebarMenu
             'isAdmin' => true,
         ],
         [
-            'title' => 'Kelola Pesan',
-            'icon'  => 'fas fa-envelope',
-            'url'   => '/pesan',
+            'title' => 'Kelola Pesanan',
+            'icon'  => 'fas fa-cart-shopping',
+            'url'   => '/pesanan',
             'isAdmin' => true,
         ],
         [

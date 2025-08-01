@@ -53,7 +53,9 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('/kontak/ubah/(:num)', 'Kontak::edit/$1');
         $routes->post('/kontak/update/(:num)', 'Kontak::update/$1');
 
-        $routes->get('/pesan', 'Pesan::index');
+        $routes->get('/pesanan', 'Pesanan::index');
+        $routes->get('/pesanan/ubah/status/(:segment)/(:num)', 'Pesanan::updateStatusPesanan/$1/$2');
+
         $routes->get('/laporan', 'Laporan::index');
     });
 });
