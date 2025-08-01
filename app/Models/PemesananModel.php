@@ -20,10 +20,6 @@ class PemesananModel extends Model
         'total_harga',
         'tanggal_pesan',
         'status',
-        'nama_pemesan',
-        'alamat',
-        'telepon',
-        'catatan'
     ];
 
     // Dates
@@ -38,9 +34,6 @@ class PemesananModel extends Model
         'produk'        => 'required|numeric',
         'jumlah'        => 'required|numeric|greater_than[0]',
         'total_harga'   => 'required|numeric',
-        'nama_pemesan'  => 'required|min_length[3]|max_length[100]',
-        'alamat'        => 'required|min_length[10]',
-        'telepon'       => 'required|min_length[10]|max_length[15]',
     ];
     protected $validationMessages   = [
         'produk' => [
@@ -56,20 +49,6 @@ class PemesananModel extends Model
             'required' => 'Total harga harus diisi',
             'numeric'  => 'Total harga tidak valid'
         ],
-        'nama_pemesan' => [
-            'required'   => 'Nama pemesan harus diisi',
-            'min_length' => 'Nama minimal 3 karakter',
-            'max_length' => 'Nama maksimal 100 karakter'
-        ],
-        'alamat' => [
-            'required'   => 'Alamat harus diisi',
-            'min_length' => 'Alamat minimal 10 karakter'
-        ],
-        'telepon' => [
-            'required'   => 'Nomor telepon harus diisi',
-            'min_length' => 'Nomor telepon minimal 10 digit',
-            'max_length' => 'Nomor telepon maksimal 15 digit'
-        ]
     ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;

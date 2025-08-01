@@ -8,36 +8,71 @@
             </div>
         </div>
 
+        <!-- Alert Messages -->
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('errors')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0">
+                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                        <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <!-- Order Form -->
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0 rounded-4">
                     <div class="card-body p-5">
-                        <form id="orderForm">
+                        <form id="orderForm" action="<?= base_url('/pemesanan/submit') ?>" method="POST">
+                            <?= csrf_field() ?>
+                            
                             <!-- Product Selection -->
                             <div class="mb-4">
                                 <label for="productSelect" class="form-label fw-bold text-dark mb-3">
                                     <i class="bi bi-basket me-2 text-success"></i>Pilih Produk
                                 </label>
                                 <div class="position-relative">
-                                    <select class="form-select form-select-lg border-2 rounded-3" id="productSelect" required>
+                                    <select class="form-select form-select-lg border-2 rounded-3" id="productSelect" name="product" required>
                                         <option value="">Pilih nama produk</option>
-                                        <optgroup label="Sayuran">
-                                            <option value="kangkung" data-price="4000" data-unit="ikat" data-stock="20">Kangkung - Rp 4.000/ikat</option>
-                                            <option value="bayam" data-price="5000" data-unit="ikat" data-stock="20">Bayam - Rp 5.000/ikat</option>
-                                            <option value="terong" data-price="6000" data-unit="kg" data-stock="12">Terong - Rp 6.000/kg</option>
-                                        </optgroup>
-                                        <optgroup label="Buah-buahan">
-                                            <option value="tomat" data-price="8000" data-unit="kg" data-stock="15">Tomat - Rp 8.000/kg</option>
-                                            <option value="cabai" data-price="20000" data-unit="kg" data-stock="10">Cabai - Rp 20.000/kg</option>
-                                        </optgroup>
-                                        <optgroup label="Bumbu">
-                                            <option value="bawang-merah" data-price="25000" data-unit="kg" data-stock="8">Bawang Merah - Rp 25.000/kg</option>
-                                        </optgroup>
+                                        
+                                        <!-- Generate options from database -->
+                                        <?php if (!empty($produkByKategori)): ?>
+                                            <?php foreach ($produkByKategori as $kategori => $produkList): ?>
+                                                <optgroup label="<?= esc(ucfirst($kategori)) ?>">
+                                                    <?php foreach ($produkList as $produk): ?>
+                                                        <?php 
+                                                        $unit = (stripos($produk['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
+                                                        $isSelected = (isset($selectedProductId) && $selectedProductId == $produk['id']) ? 'selected' : '';
+                                                        ?>
+                                                        <option value="<?= $produk['id'] ?>" 
+                                                                data-price="<?= $produk['harga'] ?>" 
+                                                                data-unit="<?= $unit ?>" 
+                                                                data-stock="<?= $produk['stok'] ?>"
+                                                                data-name="<?= esc($produk['nama_produk']) ?>"
+                                                                <?= $isSelected ?>>
+                                                            <?= esc($produk['nama_produk']) ?> - Rp <?= number_format($produk['harga'], 0, ',', '.') ?>/<?= $unit ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </optgroup>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </select>
-                                    <div class="position-absolute top-50 end-0 translate-middle-y me-3">
-                                        <i class="bi bi-chevron-down text-muted"></i>
-                                    </div>
                                 </div>
                                 
                                 <!-- Product Info Display -->
@@ -68,7 +103,7 @@
                                     <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">
                                         <i class="bi bi-dash"></i>
                                     </button>
-                                    <input type="number" class="form-control text-center border-2" id="quantity" value="1" min="1" required>
+                                    <input type="number" class="form-control text-center border-2" id="quantity" name="quantity" value="<?= old('quantity', 1) ?>" min="1" required>
                                     <button class="btn btn-outline-secondary" type="button" id="increaseBtn">
                                         <i class="bi bi-plus"></i>
                                     </button>
@@ -76,25 +111,30 @@
                                 </div>
                             </div>
 
-                            <!-- Customer Information -->
-                            <div class="row g-4 mb-4">
-                                <div class="col-12">
-                                    <label for="address" class="form-label fw-bold text-dark mb-3">
-                                        <i class="bi bi-geo-alt me-2 text-success"></i>Alamat Lengkap
-                                    </label>
-                                    <textarea class="form-control border-2 rounded-3" id="address" rows="3" placeholder="Masukkan alamat lengkap untuk pengiriman" required></textarea>
+                            <!-- Customer Information from Session -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-dark mb-3">
+                                    <i class="bi bi-person-check me-2 text-success"></i>Informasi Pemesan
+                                </h6>
+                                <div class="bg-light p-3 rounded-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <small class="text-muted d-block">Nama Pemesan</small>
+                                            <span class="fw-bold"><?= esc($userNama ?? 'User') ?></span>
+                                        </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Alamat Lengkap</small>
+                                    <textarea class="form-control" name="alamat" rows="3" required><?= esc($userAlamat ?? '') ?></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="phone" class="form-label fw-bold text-dark mb-3">
-                                        <i class="bi bi-telephone me-2 text-success"></i>Nomor Telepon
-                                    </label>
-                                    <input type="tel" class="form-control form-control-lg border-2 rounded-3" id="phone" placeholder="08xxxxxxxxxx" required>
+                                    <small class="text-muted d-block">Nomor Telepon</small>
+                                    <input type="text" class="form-control" name="nomor_telepon" placeholder="Masukkan nomor telepon" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label fw-bold text-dark mb-3">
-                                        <i class="bi bi-person me-2 text-success"></i>Nama Lengkap
-                                    </label>
-                                    <input type="text" class="form-control form-control-lg border-2 rounded-3" id="name" placeholder="Masukkan nama lengkap" required>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Data diambil dari profil akun Anda. Untuk mengubah, silakan edit profil.
+                                    </small>
                                 </div>
                             </div>
 
@@ -103,30 +143,7 @@
                                 <label for="notes" class="form-label fw-bold text-dark mb-3">
                                     <i class="bi bi-chat-dots me-2 text-success"></i>Catatan Tambahan
                                 </label>
-                                <textarea class="form-control border-2 rounded-3" id="notes" rows="3" placeholder="Catatan khusus untuk pesanan Anda (opsional)"></textarea>
-                            </div>
-
-                            <!-- Admin Contact -->
-                            <div class="form-check mb-4">
-                                <input class="form-check-input" type="checkbox" id="adminContact" checked>
-                                <label class="form-check-label text-muted" for="adminContact">
-                                    Saya setuju dihubungi oleh admin untuk proses selanjutnya
-                                </label>
-                            </div>
-
-                            <!-- Order Summary -->
-                            <div class="bg-success-subtle p-4 rounded-3 mb-4" id="orderSummary" style="display: none;">
-                                <h6 class="fw-bold text-success mb-3">
-                                    <i class="bi bi-check-circle me-2"></i>Ringkasan Pesanan
-                                </h6>
-                                <div class="row g-2">
-                                    <div class="col-6"><span class="text-muted">Produk:</span></div>
-                                    <div class="col-6"><span id="summaryProduct">-</span></div>
-                                    <div class="col-6"><span class="text-muted">Jumlah:</span></div>
-                                    <div class="col-6"><span id="summaryQuantity">-</span></div>
-                                    <div class="col-6"><span class="text-muted">Total Harga:</span></div>
-                                    <div class="col-6"><span class="fw-bold text-success" id="summaryTotal">Rp 0</span></div>
-                                </div>
+                                <textarea class="form-control border-2 rounded-3" id="notes" name="notes" rows="3" placeholder="Catatan khusus untuk pesanan Anda (opsional)"><?= old('notes') ?></textarea>
                             </div>
 
                             <!-- Submit Button -->
@@ -167,11 +184,6 @@
     color: white;
 }
 
-.form-check-input:checked {
-    background-color: #198754;
-    border-color: #198754;
-}
-
 .card {
     transition: all 0.3s ease;
 }
@@ -179,26 +191,6 @@
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important;
-}
-
-@media (max-width: 768px) {
-    .display-5 {
-        font-size: 2rem !important;
-    }
-    
-    .card-body {
-        padding: 2rem !important;
-    }
-}
-
-/* Custom animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#productInfo, #orderSummary {
-    animation: fadeIn 0.3s ease-in-out;
 }
 </style>
 
@@ -213,11 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const stockDisplay = document.getElementById('stockDisplay');
     const totalPrice = document.getElementById('totalPrice');
     const unitDisplay = document.getElementById('unitDisplay');
-    const orderSummary = document.getElementById('orderSummary');
-    const summaryProduct = document.getElementById('summaryProduct');
-    const summaryQuantity = document.getElementById('summaryQuantity');
-    const summaryTotal = document.getElementById('summaryTotal');
-    const orderForm = document.getElementById('orderForm');
 
     let currentPrice = 0;
     let currentUnit = '';
@@ -241,10 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             productInfo.style.display = 'block';
             updateTotal();
-            updateSummary();
         } else {
             productInfo.style.display = 'none';
-            orderSummary.style.display = 'none';
             currentPrice = 0;
             currentUnit = '';
             currentStock = 0;
@@ -257,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentValue > 1) {
             quantityInput.value = currentValue - 1;
             updateTotal();
-            updateSummary();
         }
     });
 
@@ -266,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentValue < currentStock) {
             quantityInput.value = currentValue + 1;
             updateTotal();
-            updateSummary();
         }
     });
 
@@ -278,7 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = 1;
         }
         updateTotal();
-        updateSummary();
     });
 
     function updateTotal() {
@@ -287,46 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPrice.textContent = `Rp ${total.toLocaleString('id-ID')}`;
     }
 
-    function updateSummary() {
-        if (productSelect.value && quantityInput.value) {
-            const selectedOption = productSelect.options[productSelect.selectedIndex];
-            const quantity = parseInt(quantityInput.value);
-            const total = currentPrice * quantity;
-            
-            summaryProduct.textContent = selectedOption.text.split(' - ')[0];
-            summaryQuantity.textContent = `${quantity} ${currentUnit}`;
-            summaryTotal.textContent = `Rp ${total.toLocaleString('id-ID')}`;
-            
-            orderSummary.style.display = 'block';
-        }
+    // Trigger change event on page load if product is pre-selected
+    if (productSelect.value) {
+        productSelect.dispatchEvent(new Event('change'));
     }
-
-    // Form submission
-    orderForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Basic validation
-        const product = productSelect.value;
-        const quantity = quantityInput.value;
-        const address = document.getElementById('address').value;
-        const phone = document.getElementById('phone').value;
-        const name = document.getElementById('name').value;
-        
-        if (!product || !quantity || !address || !phone || !name) {
-            alert('Mohon lengkapi semua field yang diperlukan!');
-            return;
-        }
-        
-        // Success message
-        alert('Pesanan berhasil dikirim! Admin akan menghubungi Anda segera.');
-        
-        // Reset form
-        orderForm.reset();
-        productInfo.style.display = 'none';
-        orderSummary.style.display = 'none';
-        currentPrice = 0;
-        currentUnit = '';
-        currentStock = 0;
-    });
 });
 </script>
