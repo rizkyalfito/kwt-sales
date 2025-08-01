@@ -14,7 +14,8 @@
         <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" />
     </div>
     <button type="submit" class="btn btn-primary w-100">Login</button>
-    <div class="mt-3 text-center">
-        <a href="<?= base_url('/register') ?>">Don't have an account? Register here</a>
+    <div class="d-flex flex-column mt-3 text-center">
+        <a href="<?= base_url('/register') ?>">Belum punya akun? Daftar disini</a>
+        <a href="<?= base_url('/') ?>">Kembali ke Beranda</a>
     </div>
 </form>

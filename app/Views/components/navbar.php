@@ -150,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-<style>
 .navbar {
   padding: 1rem 0;
   transition: all 0.3s ease;

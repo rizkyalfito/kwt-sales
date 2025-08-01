@@ -41,7 +41,7 @@
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="#" class="dropdown-item">Profile</a>
           <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">Logout</a>
+          <a href="/logout" class="dropdown-item">Logout</a>
         </div>
       </li>
     </ul>
@@ -129,11 +129,21 @@
 
 <script>
 $(document).ready(function() {
-  // Intercept sidebar menu clicks
+  // Intercept sidebar menu clicks (exclude logout and external links)
   $('.nav-sidebar a.nav-link').on('click', function(e) {
-    e.preventDefault();
     var url = $(this).attr('href');
-    if (url === '#' || !url) return;
+    
+    // Skip AJAX for certain links
+    if (url === '#' || 
+        !url || 
+        url.includes('/logout') || 
+        url.includes('javascript:') ||
+        $(this).hasClass('external-link') ||
+        $(this).attr('target') === '_blank') {
+      return; // Allow normal navigation
+    }
+    
+    e.preventDefault();
 
     // Load content via AJAX
     $.ajax({
