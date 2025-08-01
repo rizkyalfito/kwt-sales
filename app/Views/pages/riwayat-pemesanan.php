@@ -100,7 +100,7 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
-                                        <h5 class="card-title fw-bold mb-1"><?= esc($pesanan['nama_produk']) ?> - <?= $pesanan['jumlah'] ?> <?= $unit ?></h5>
+                                        <h5 class="card-title fw-bold mb-1"><?= esc($pesanan['nama_produk']) ?> - <?= $pesanan['jumlah'] ?> <?= $unit ?></h5> &nbsp;
                                         <small class="text-muted">
                                             <i class="bi bi-calendar me-1"></i><?= date('d M Y', strtotime($pesanan['tanggal_pesan'])) ?>
                                         </small>

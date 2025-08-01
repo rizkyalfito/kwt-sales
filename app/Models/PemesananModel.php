@@ -101,6 +101,26 @@ class PemesananModel extends Model
         return $builder->orderBy('p.id', 'DESC')->get()->getResultArray();
     }
 
+    public function getPemesananWithProdukWithFilter($id = null, $month = null)
+    {
+        $builder = $this->db->table($this->table . ' p');
+        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, u.nama as nama_user');
+        $builder->join('produk pr', 'pr.id = p.produk', 'left');
+        $builder->join('users u', 'u.id = p.user', 'left');
+
+        if ($id !== null) {
+            $builder->where('p.id', $id);
+            return $builder->get()->getRowArray();
+        }
+
+        if ($month !== null) {
+            // pastikan format $month adalah YYYY-MM
+            $builder->like('DATE_FORMAT(p.tanggal_pesan, "%Y-%m")', $month);
+        }
+
+        return $builder->orderBy('p.id', 'DESC')->get()->getResultArray();
+    }
+
     public function updateStatus($id, $status)
     {
         $allowedStatus = ['diproses', 'dikirim', 'selesai', 'dibatalkan'];
