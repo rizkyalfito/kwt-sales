@@ -29,9 +29,10 @@ $routes->group('', ['filter' => 'guest'], function ($routes) {
 
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/logout', 'Auth::logout');
-    $routes->get('/dashboard', 'Dashboard::index');
 
     $routes->group('', ['filter' => 'admin'], function ($routes) {
+        $routes->get('/dashboard', 'Dashboard::index');
+
         $routes->get('/kategori', 'Kategori::index');
         $routes->get('/kategori/tambah', 'Kategori::new');
         $routes->post('/kategori/simpan', 'Kategori::save');

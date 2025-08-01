@@ -66,7 +66,7 @@ class Auth extends Controller
         $this->session->set('alamat', $data['alamat']);
         $this->session->set('email', $data['email']);
 
-        return redirect()->to('/dashboard');
+        return redirect()->to('/');
     }
 
     public function postLogin()
@@ -88,7 +88,7 @@ class Auth extends Controller
             $this->session->set('level', $dataUser['level']);
             $this->session->set('alamat', $dataUser['alamat']);
             $this->session->set('email', $dataUser['email']);
-            return redirect()->to('/dashboard');
+            return $dataUser['level'] === 'admin' ? redirect()->to('/dashboard') : redirect()->to('/');
         } else {
             return redirect()->to('/login')->with('error', 'Username atau password salah!');
         }
