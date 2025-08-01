@@ -14,9 +14,11 @@ $routes->get('/produk-public/cari', 'ProdukPublic::cari');
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/pemesanan', 'Pemesanan::index');
     $routes->post('/pemesanan/submit', 'Pemesanan::submitOrder');
+    $routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
+    $routes->get('/riwayat-pemesanan/detail/(:num)', 'RiwayatPemesanan::detail/$1');
+    $routes->post('/riwayat-pemesanan/batalkan/(:num)', 'RiwayatPemesanan::batalkan/$1');
 });
 
-$routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
 
 $routes->group('', ['filter' => 'guest'], function ($routes) {
     $routes->get('/login', 'Auth::login');

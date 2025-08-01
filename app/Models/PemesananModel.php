@@ -22,20 +22,24 @@ class PemesananModel extends Model
         'status',
     ];
 
-    // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
     protected $validationRules      = [
+        'user'          => 'required|numeric',
         'produk'        => 'required|numeric',
         'jumlah'        => 'required|numeric|greater_than[0]',
         'total_harga'   => 'required|numeric',
     ];
+    
     protected $validationMessages   = [
+        'user' => [
+            'required' => 'User ID harus ada',
+            'numeric'  => 'User ID tidak valid'
+        ],
         'produk' => [
             'required' => 'Produk harus dipilih',
             'numeric'  => 'ID produk tidak valid'
@@ -50,10 +54,10 @@ class PemesananModel extends Model
             'numeric'  => 'Total harga tidak valid'
         ],
     ];
+    
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
     protected $afterInsert    = [];
@@ -64,12 +68,8 @@ class PemesananModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    /**
-     * Simpan data pemesanan
-     */
     public function simpanPemesanan($data)
     {
-        // Generate nomor pemesanan unik
         $data['pemesanan'] = $this->generateNomorPemesanan();
         $data['tanggal_pesan'] = date('Y-m-d');
         $data['status'] = 'diproses';
@@ -77,24 +77,21 @@ class PemesananModel extends Model
         return $this->insert($data);
     }
 
-    /**
-     * Generate nomor pemesanan unik
-     */
     private function generateNomorPemesanan()
     {
         $lastOrder = $this->orderBy('id', 'DESC')->first();
-        $lastNumber = $lastOrder ? $lastOrder['pemesanan'] : 0;
-        return $lastNumber + 1;
+        if ($lastOrder && isset($lastOrder['pemesanan'])) {
+            return $lastOrder['pemesanan'] + 1;
+        }
+        return 1001;
     }
 
-    /**
-     * Ambil data pemesanan dengan detail produk
-     */
     public function getPemesananWithProduk($id = null)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori');
+        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, u.nama as nama_user');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
+        $builder->join('users u', 'u.id = p.user', 'left');
         
         if ($id !== null) {
             $builder->where('p.id', $id);
@@ -104,9 +101,6 @@ class PemesananModel extends Model
         return $builder->orderBy('p.id', 'DESC')->get()->getResultArray();
     }
 
-    /**
-     * Update status pemesanan
-     */
     public function updateStatus($id, $status)
     {
         $allowedStatus = ['diproses', 'dikirim', 'selesai', 'dibatalkan'];
@@ -116,5 +110,58 @@ class PemesananModel extends Model
         }
         
         return $this->update($id, ['status' => $status]);
+    }
+
+    public function getRiwayatPemesananByUser($userId)
+    {
+        $builder = $this->db->table($this->table . ' p');
+        $builder->select('p.*, pr.nama_produk, pr.nama_kategori');
+        $builder->join('produk pr', 'pr.id = p.produk', 'left');
+        $builder->where('p.user', $userId);
+        $builder->orderBy('p.id', 'DESC');
+        
+        return $builder->get()->getResultArray();
+    }
+
+    public function getStatistikPemesanan($userId)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('status, COUNT(*) as jumlah');
+        $builder->where('user', $userId);
+        $builder->groupBy('status');
+        
+        $result = $builder->get()->getResultArray();
+
+        $stats = [
+            'total' => 0,
+            'diproses' => 0,
+            'selesai' => 0,
+            'dibatalkan' => 0,
+            'pending' => 0
+        ];
+        
+        foreach ($result as $row) {
+            $stats[$row['status']] = $row['jumlah'];
+            $stats['total'] += $row['jumlah'];
+        }
+        
+        return $stats;
+    }
+
+    public function getDetailPemesanan($id, $userId)
+    {
+        $builder = $this->db->table($this->table . ' p');
+        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, pr.harga as harga_satuan, u.nama as nama_user, u.alamat, u.email');
+        $builder->join('produk pr', 'pr.id = p.produk', 'left');
+        $builder->join('users u', 'u.id = p.user', 'left');
+        $builder->where('p.id', $id);
+        $builder->where('p.user', $userId);
+        
+        return $builder->get()->getRowArray();
+    }
+
+    public function getPemesananByIdAndUser($id, $userId)
+    {
+        return $this->where(['id' => $id, 'user' => $userId])->first();
     }
 }

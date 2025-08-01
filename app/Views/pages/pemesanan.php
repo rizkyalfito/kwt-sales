@@ -1,10 +1,10 @@
 <section id="pemesanan" class="py-5 bg-light">
     <div class="container">
-        <!-- Header Section -->
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-5 fw-bold text-dark mb-3">Pesan Sekarang</h2>
-                <p class="lead text-muted">Silakan isi form pemesanan di bawah ini untuk memesan produk hasil pertanian segar</p>
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold text-dark mb-2">Form Pemesanan</h2>
+                <p class="text-muted">Silakan isi form pemesanan produk pertanian segar</p>
             </div>
         </div>
 
@@ -12,144 +12,101 @@
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= session()->getFlashdata('error') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
-        <?php if (session()->getFlashdata('errors')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <ul class="mb-0">
-                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <!-- Order Form -->
+        <!-- Form -->
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0 rounded-4">
-                    <div class="card-body p-5">
-                        <form id="orderForm" action="<?= base_url('/pemesanan/submit') ?>" method="POST">
+                <div class="card shadow border-0">
+                    <div class="card-body p-4">
+                        <form action="<?= base_url('/pemesanan/submit') ?>" method="POST">
                             <?= csrf_field() ?>
                             
-                            <!-- Product Selection -->
-                            <div class="mb-4">
-                                <label for="productSelect" class="form-label fw-bold text-dark mb-3">
-                                    <i class="bi bi-basket me-2 text-success"></i>Pilih Produk
-                                </label>
-                                <div class="position-relative">
-                                    <select class="form-select form-select-lg border-2 rounded-3" id="productSelect" name="product" required>
-                                        <option value="">Pilih nama produk</option>
-                                        
-                                        <!-- Generate options from database -->
-                                        <?php if (!empty($produkByKategori)): ?>
-                                            <?php foreach ($produkByKategori as $kategori => $produkList): ?>
-                                                <optgroup label="<?= esc(ucfirst($kategori)) ?>">
-                                                    <?php foreach ($produkList as $produk): ?>
-                                                        <?php 
-                                                        $unit = (stripos($produk['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
-                                                        $isSelected = (isset($selectedProductId) && $selectedProductId == $produk['id']) ? 'selected' : '';
-                                                        ?>
-                                                        <option value="<?= $produk['id'] ?>" 
-                                                                data-price="<?= $produk['harga'] ?>" 
-                                                                data-unit="<?= $unit ?>" 
-                                                                data-stock="<?= $produk['stok'] ?>"
-                                                                data-name="<?= esc($produk['nama_produk']) ?>"
-                                                                <?= $isSelected ?>>
-                                                            <?= esc($produk['nama_produk']) ?> - Rp <?= number_format($produk['harga'], 0, ',', '.') ?>/<?= $unit ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </optgroup>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                </div>
-                                
-                                <!-- Product Info Display -->
-                                <div id="productInfo" class="mt-3 p-3 bg-light rounded-3" style="display: none;">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <small class="text-muted d-block">Harga Satuan</small>
-                                            <span class="fw-bold text-success" id="priceDisplay">-</span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <small class="text-muted d-block">Stok Tersedia</small>
-                                            <span class="fw-bold text-primary" id="stockDisplay">-</span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <small class="text-muted d-block">Total Harga</small>
-                                            <span class="fw-bold text-dark fs-5" id="totalPrice">Rp 0</span>
-                                        </div>
+                            <!-- Pilih Produk -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Pilih Produk</label>
+                                <select class="form-select" id="productSelect" name="product" required>
+                                    <option value="">-- Pilih Produk --</option>
+                                    <?php if (!empty($produkByKategori)): ?>
+                                        <?php foreach ($produkByKategori as $kategori => $produkList): ?>
+                                            <optgroup label="<?= esc(ucfirst($kategori)) ?>">
+                                                <?php foreach ($produkList as $produk): ?>
+                                                    <?php 
+                                                    $unit = (stripos($produk['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
+                                                    $isSelected = (isset($selectedProductId) && $selectedProductId == $produk['id']) ? 'selected' : '';
+                                                    ?>
+                                                    <option value="<?= $produk['id'] ?>" 
+                                                            data-price="<?= $produk['harga'] ?>" 
+                                                            data-unit="<?= $unit ?>" 
+                                                            data-stock="<?= $produk['stok'] ?>"
+                                                            <?= $isSelected ?>>
+                                                        <?= esc($produk['nama_produk']) ?> - Rp <?= number_format($produk['harga'], 0, ',', '.') ?>/<?= $unit ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+
+                            <!-- Info Produk -->
+                            <div id="productInfo" class="mb-3 p-3 bg-light rounded" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Harga Satuan:</small><br>
+                                        <span class="fw-bold text-success" id="priceDisplay">-</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Stok:</small><br>
+                                        <span class="fw-bold text-primary" id="stockDisplay">-</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Total Harga:</small><br>
+                                        <span class="fw-bold text-dark" id="totalPrice">Rp 0</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Quantity -->
-                            <div class="mb-4">
-                                <label for="quantity" class="form-label fw-bold text-dark mb-3">
-                                    <i class="bi bi-plus-circle me-2 text-success"></i>Jumlah
-                                </label>
-                                <div class="input-group input-group-lg">
-                                    <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-                                    <input type="number" class="form-control text-center border-2" id="quantity" name="quantity" value="<?= old('quantity', 1) ?>" min="1" required>
-                                    <button class="btn btn-outline-secondary" type="button" id="increaseBtn">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-                                    <span class="input-group-text bg-light border-2" id="unitDisplay">unit</span>
+                            <!-- Jumlah -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Jumlah</label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">-</button>
+                                    <input type="number" class="form-control text-center" id="quantity" name="quantity" value="1" min="1" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="increaseBtn">+</button>
+                                    <span class="input-group-text" id="unitDisplay">unit</span>
                                 </div>
                             </div>
 
-                            <!-- Customer Information from Session -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-dark mb-3">
-                                    <i class="bi bi-person-check me-2 text-success"></i>Informasi Pemesan
-                                </h6>
-                                <div class="bg-light p-3 rounded-3">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <small class="text-muted d-block">Nama Pemesan</small>
-                                            <span class="fw-bold"><?= esc($userNama ?? 'User') ?></span>
-                                        </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block">Alamat Lengkap</small>
-                                    <textarea class="form-control" name="alamat" rows="3" required><?= esc($userAlamat ?? '') ?></textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block">Nomor Telepon</small>
-                                    <input type="text" class="form-control" name="nomor_telepon" placeholder="Masukkan nomor telepon" required>
-                                </div>
-                                    </div>
-                                    <small class="text-muted">
-                                        <i class="bi bi-info-circle me-1"></i>
-                                        Data diambil dari profil akun Anda. Untuk mengubah, silakan edit profil.
-                                    </small>
-                                </div>
+                            <!-- Data Pemesan -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nama Pemesan</label>
+                                <input type="text" class="form-control" value="<?= esc($userNama ?? '') ?>" readonly>
                             </div>
 
-                            <!-- Notes -->
-                            <div class="mb-4">
-                                <label for="notes" class="form-label fw-bold text-dark mb-3">
-                                    <i class="bi bi-chat-dots me-2 text-success"></i>Catatan Tambahan
-                                </label>
-                                <textarea class="form-control border-2 rounded-3" id="notes" name="notes" rows="3" placeholder="Catatan khusus untuk pesanan Anda (opsional)"><?= old('notes') ?></textarea>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Alamat Lengkap <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="alamat" rows="3" placeholder="Masukkan alamat lengkap" required><?= old('alamat', $userAlamat ?? '') ?></textarea>
                             </div>
 
-                            <!-- Submit Button -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Nomor Telepon <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" name="nomor_telepon" placeholder="08xxxxxxxxxx" value="<?= old('nomor_telepon') ?>" required>
+                            </div>
+
+                            <!-- Submit -->
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-success btn-lg rounded-pill py-3">
-                                    <i class="bi bi-send me-2"></i>Kirim Pesanan
+                                <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>
+                                    Kirim Pesanan
                                 </button>
                             </div>
                         </form>
@@ -159,40 +116,6 @@
         </div>
     </div>
 </section>
-
-<style>
-.form-control:focus, .form-select:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.form-control, .form-select {
-    transition: all 0.3s ease;
-}
-
-.form-control:hover, .form-select:hover {
-    border-color: #198754;
-}
-
-.btn-outline-secondary {
-    border-color: #dee2e6;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #198754;
-    border-color: #198754;
-    color: white;
-}
-
-.card {
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -205,12 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const stockDisplay = document.getElementById('stockDisplay');
     const totalPrice = document.getElementById('totalPrice');
     const unitDisplay = document.getElementById('unitDisplay');
+    const submitBtn = document.getElementById('submitBtn');
 
     let currentPrice = 0;
     let currentUnit = '';
     let currentStock = 0;
 
-    // Product selection change
     productSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
         
@@ -227,9 +150,11 @@ document.addEventListener('DOMContentLoaded', function() {
             quantityInput.value = 1;
             
             productInfo.style.display = 'block';
+            submitBtn.disabled = false;
             updateTotal();
         } else {
             productInfo.style.display = 'none';
+            submitBtn.disabled = true;
             currentPrice = 0;
             currentUnit = '';
             currentStock = 0;
@@ -238,17 +163,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Quantity controls
     decreaseBtn.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value);
-        if (currentValue > 1) {
-            quantityInput.value = currentValue - 1;
+        if (quantityInput.value > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
             updateTotal();
         }
     });
 
     increaseBtn.addEventListener('click', function() {
-        const currentValue = parseInt(quantityInput.value);
-        if (currentValue < currentStock) {
-            quantityInput.value = currentValue + 1;
+        if (parseInt(quantityInput.value) < currentStock) {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
             updateTotal();
         }
     });
@@ -269,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPrice.textContent = `Rp ${total.toLocaleString('id-ID')}`;
     }
 
-    // Trigger change event on page load if product is pre-selected
     if (productSelect.value) {
         productSelect.dispatchEvent(new Event('change'));
     }
