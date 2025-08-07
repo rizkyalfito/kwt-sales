@@ -68,7 +68,7 @@
                 }
                 ?>
                 <li class="nav-item">
-                    <a href="<?= base_url($item['url']) ?>" class="nav-link <?= ($title === $item['title']) ? 'active' : '' ?>">
+                    <a href="<?= base_url($item['url']) ?>" onclick="event.preventDefault(); window.location.href='<?= base_url($item['url']) ?>';" class="nav-link <?= ($title === $item['title']) ? 'active' : '' ?>">
                         <i class="nav-icon <?= esc($item['icon']) ?>"></i>
                         <p><?= esc($item['title']) ?></p>
                     </a>

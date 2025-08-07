@@ -38,6 +38,7 @@
                             <th>Harga</th>
                             <th>Detail</th>
                             <th>Gambar</th>
+                            <th>Total Terjual</th>
                             <th>Aksi</th>
                         </tr>
                         </thead>
@@ -53,6 +54,7 @@
                                 <td>
                                     <img width="52" height="52" src="<?= base_url('assets/image/product/') . $product['gambar'] ?>" alt="<?= $product['nama_produk'] ?>">
                                 </td>
+                                <td><?= $product['total_terjual'] ?></td>
                                 <td>
                                     <a href="<?= base_url('produk/ubah/' . $product['id']) ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>

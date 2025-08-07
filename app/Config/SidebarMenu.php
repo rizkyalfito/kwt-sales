@@ -6,6 +6,12 @@ class SidebarMenu
 {
     public static $menuItems = [
         [
+            'title' => 'Home',
+            'icon'  => 'fas fa-house',
+            'url'   => '/',
+            'isAdmin' => true,
+        ],
+        [
             'title' => 'Dashboard',
             'icon'  => 'fas fa-tachometer-alt',
             'url'   => '/dashboard',

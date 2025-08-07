@@ -43,4 +43,13 @@ class Product extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getTotalSalesProduct()
+    {
+        return $this->select("produk.*, COALESCE(SUM(CASE WHEN pemesanan.status != 'dibatalkan' THEN pemesanan.jumlah ELSE 0 END), 0) as total_terjual")
+            ->join('pemesanan', 'produk.id = pemesanan.produk', 'left')
+            ->groupBy('produk.id')
+            ->findAll();
+    }
+
 }

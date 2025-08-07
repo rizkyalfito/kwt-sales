@@ -11,7 +11,7 @@ $routes->get('/produk-public', 'ProdukPublic::index');
 $routes->get('/produk-public/cari', 'ProdukPublic::cari');
 
 
-$routes->group('', ['filter' => 'auth'], function ($routes) {
+$routes->group('', ['filter' => 'user'], function ($routes) {
     $routes->get('/pemesanan', 'Pemesanan::index');
     $routes->post('/pemesanan/submit', 'Pemesanan::submitOrder');
     $routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
