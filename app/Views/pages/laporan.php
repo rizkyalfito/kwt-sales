@@ -58,8 +58,8 @@
                                 <td><?= $booking['nama_user'] ?></td>
                                 <td><?= $booking['nama_produk'] ?></td>
                                 <td><?= $booking['jumlah'] ?></td>
-                                <td><?= $booking['tanggal_pesan'] ?></td>
                                 <td>Rp. <?= number_format($booking['total_harga']) ?></td>
+                                <td><?= $booking['tanggal_pesan'] ?></td>
                                 <td><?= $booking['status'] ?></td>
                             </tr>
                         <?php endforeach; ?>
