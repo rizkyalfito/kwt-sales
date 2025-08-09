@@ -78,7 +78,23 @@ class RiwayatPemesanan extends Controller
             return $this->response->setJSON(['error' => 'Pesanan tidak dapat dibatalkan pada status ini']);
         }
         
-        if ($this->pemesananModel->updateStatus($id, 'cancelled')) {
+        // Get cancellation reason from POST data
+        $input = $this->request->getJSON(true);
+        $alasanPembatalan = isset($input['alasan_pembatalan']) ? trim($input['alasan_pembatalan']) : '';
+        
+        // Validate cancellation reason
+        if (empty($alasanPembatalan)) {
+            // Cancellation reason is required to proceed with cancellation
+            return $this->response->setJSON(['error' => 'Alasan pembatalan harus diisi agar pesanan dapat dibatalkan']);
+        }
+        
+        // Update status and save cancellation reason
+        $updateData = [
+            'status' => 'cancelled',
+            'alasan_pembatalan' => $alasanPembatalan
+        ];
+        
+        if ($this->pemesananModel->update($id, $updateData)) {
             // Restore product stock when order is cancelled
             $produkModel = new \App\Models\ProdukModel();
             $produk = $produkModel->find($pesanan['produk']);
@@ -88,7 +104,7 @@ class RiwayatPemesanan extends Controller
                 ]);
             }
             
-            log_message('info', "Order cancelled successfully - Order ID: $id, User ID: $userId");
+            log_message('info', "Order cancelled successfully - Order ID: $id, User ID: $userId, Reason: $alasanPembatalan");
             return $this->response->setJSON(['success' => true, 'message' => 'Pesanan berhasil dibatalkan']);
         }
         

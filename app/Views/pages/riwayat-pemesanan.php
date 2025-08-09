@@ -175,6 +175,29 @@
     </div>
 </section>
 
+<!-- Cancel Reason Modal -->
+<div class="modal fade" id="cancelReasonModal" tabindex="-1" aria-labelledby="cancelReasonModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cancelReasonModalLabel">Alasan Pembatalan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="cancelReasonTextarea" class="form-label">Mohon isi alasan pembatalan pesanan Anda:</label>
+          <textarea class="form-control" id="cancelReasonTextarea" rows="3" required></textarea>
+          <div class="text-danger mt-2"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-danger">Batalkan Pesanan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Order Detail Modal -->
 <div class="modal fade" id="orderDetailModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -476,13 +499,33 @@ function viewOrderDetail(orderId) {
 }
 
 function batalkanPesanan(orderId) {
-    if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
+    // Show cancellation reason modal
+    const modalEl = document.getElementById('cancelReasonModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = modalEl.querySelector('form');
+    const textarea = modalEl.querySelector('textarea');
+    const errorDiv = modalEl.querySelector('.text-danger');
+    
+    errorDiv.textContent = '';
+    textarea.value = '';
+    
+    modal.show();
+    
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        const alasan = textarea.value.trim();
+        if (!alasan) {
+            errorDiv.textContent = 'Alasan pembatalan harus diisi.';
+            return;
+        }
+        
         fetch(`<?= base_url('riwayat-pemesanan/batalkan') ?>/${orderId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            body: JSON.stringify({ alasan_pembatalan: alasan })
         })
         .then(response => response.json())
         .then(data => {
@@ -492,11 +535,13 @@ function batalkanPesanan(orderId) {
             } else {
                 alert(data.error || 'Gagal membatalkan pesanan');
             }
+            modal.hide();
         })
         .catch(error => {
             alert('Terjadi kesalahan saat membatalkan pesanan');
+            modal.hide();
         });
-    }
+    };
 }
 
 function pesanLagi(productId) {
