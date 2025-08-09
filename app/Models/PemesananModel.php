@@ -20,6 +20,7 @@ class PemesananModel extends Model
         'total_harga',
         'tanggal_pesan',
         'status',
+        'alasan_pembatalan',
         'metode_pembayaran',
         'bukti_pembayaran',
         'status_pembayaran',
