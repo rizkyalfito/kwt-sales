@@ -147,6 +147,28 @@
     </div>
 </section>
 
+<style>
+    .form-control:focus:invalid,
+    .form-select:focus:invalid,
+    input:focus:invalid,
+    select:focus:invalid,
+    textarea:focus:invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .form-control.is-invalid:focus,
+    .form-select.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const productSelect = document.getElementById('productSelect');
@@ -225,5 +247,67 @@ document.addEventListener('DOMContentLoaded', function() {
     if (productSelect.value) {
         productSelect.dispatchEvent(new Event('change'));
     }
+
+    // Form validation for empty inputs
+    const form = document.querySelector('form');
+    const requiredInputs = form.querySelectorAll('[required]');
+    
+    function validateInput(input) {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            input.style.borderColor = '#dc3545';
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.style.borderColor = '';
+            return true;
+        }
+    }
+    
+    function validateAllInputs() {
+        let isValid = true;
+        requiredInputs.forEach(input => {
+            if (!validateInput(input)) {
+                isValid = false;
+            }
+        });
+        return isValid;
+    }
+    
+    // Real-time validation on blur
+    requiredInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateInput(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
+                validateInput(this);
+            }
+        });
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        if (!validateAllInputs()) {
+            e.preventDefault();
+            // Focus on first invalid input
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
+    });
+    
+    // Also validate on form attempt
+    submitBtn.addEventListener('click', function(e) {
+        if (!validateAllInputs()) {
+            e.preventDefault();
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
+    });
 });
 </script>
