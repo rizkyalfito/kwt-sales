@@ -103,6 +103,36 @@
                                 <input type="tel" class="form-control" name="nomor_telepon" placeholder="08xxxxxxxxxx" value="<?= old('nomor_telepon') ?>" required>
                             </div>
 
+                            <!-- Metode Pembayaran -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Metode Pembayaran <span class="text-danger">*</span></label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="metode_pembayaran" id="cod" value="cod" checked>
+                                            <label class="form-check-label" for="cod">
+                                                <i class="fas fa-money-bill-wave"></i> COD (Bayar di Tempat)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="metode_pembayaran" id="transfer" value="transfer">
+                                            <label class="form-check-label" for="transfer">
+                                                <i class="fas fa-credit-card"></i> Transfer Bank
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload Bukti Pembayaran (untuk transfer) -->
+                            <div class="mb-4" id="uploadSection" style="display: none;">
+                                <label class="form-label fw-bold">Upload Bukti Pembayaran <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" name="bukti_pembayaran" accept="image/*,.pdf">
+                                <small class="text-muted">Format: JPG, PNG, PDF (max 2MB)</small>
+                            </div>
+
                             <!-- Submit -->
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>

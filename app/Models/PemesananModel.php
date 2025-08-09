@@ -20,6 +20,9 @@ class PemesananModel extends Model
         'total_harga',
         'tanggal_pesan',
         'status',
+        'metode_pembayaran',
+        'bukti_pembayaran',
+        'status_pembayaran',
     ];
 
     protected $useTimestamps = false;
@@ -70,19 +73,42 @@ class PemesananModel extends Model
 
     public function simpanPemesanan($data)
     {
+        // Generate nomor pemesanan
         $data['pemesanan'] = $this->generateNomorPemesanan();
+        
+        // Set tanggal pesan
         $data['tanggal_pesan'] = date('Y-m-d');
+        
+        // Set status default
         $data['status'] = 'diproses';
         
-        return $this->insert($data);
+        // Log data sebelum insert
+        log_message('info', 'Inserting order data: ' . json_encode($data));
+        
+        // Insert data menggunakan method bawaan CodeIgniter
+        $result = $this->insert($data);
+        
+        if ($result) {
+            log_message('info', 'Order inserted successfully with ID: ' . $this->getInsertID());
+        } else {
+            log_message('error', 'Failed to insert order: ' . json_encode($this->errors()));
+        }
+        
+        return $result;
     }
 
     private function generateNomorPemesanan()
     {
+        // Ambil nomor pemesanan terakhir berdasarkan ID terbesar
         $lastOrder = $this->orderBy('id', 'DESC')->first();
-        if ($lastOrder && isset($lastOrder['pemesanan'])) {
-            return $lastOrder['pemesanan'] + 1;
+        
+        if ($lastOrder) {
+            // Jika sudah ada pesanan, increment dari nomor pemesanan terakhir
+            $lastNumber = intval($lastOrder['pemesanan']);
+            return $lastNumber + 1;
         }
+        
+        // Jika belum ada pesanan sama sekali, mulai dari 1001
         return 1001;
     }
 
