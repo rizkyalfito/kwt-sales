@@ -73,11 +73,13 @@ class RiwayatPemesanan extends Controller
             return $this->response->setJSON(['error' => 'Pesanan tidak ditemukan']);
         }
         
-        if ($pesanan['status'] !== 'diproses') {
-            return $this->response->setJSON(['error' => 'Pesanan tidak dapat dibatalkan']);
+        // Update allowed cancellation statuses to include new statuses
+        if (!in_array($pesanan['status'], ['processing', 'pending_payment', 'payment_confirmed'])) {
+            return $this->response->setJSON(['error' => 'Pesanan tidak dapat dibatalkan pada status ini']);
         }
         
-        if ($this->pemesananModel->updateStatus($id, 'dibatalkan')) {
+        if ($this->pemesananModel->updateStatus($id, 'cancelled')) {
+            // Restore product stock when order is cancelled
             $produkModel = new \App\Models\ProdukModel();
             $produk = $produkModel->find($pesanan['produk']);
             if ($produk) {
@@ -86,6 +88,7 @@ class RiwayatPemesanan extends Controller
                 ]);
             }
             
+            log_message('info', "Order cancelled successfully - Order ID: $id, User ID: $userId");
             return $this->response->setJSON(['success' => true, 'message' => 'Pesanan berhasil dibatalkan']);
         }
         
@@ -94,18 +97,36 @@ class RiwayatPemesanan extends Controller
     
     private function getUserId()
     {
+        // Try multiple session keys for user ID
         $userId = session()->get('user_id') ?? session()->get('id') ?? session()->get('userId');
         
-        if (!$userId && session()->get('username')) {
+        if (!$userId) {
+            // Try finding user by session data
             $db = \Config\Database::connect();
-            $user = $db->table('users')->where('username', session()->get('username'))->get()->getRowArray();
-            $userId = $user ? $user['id'] : null;
-        }
-        
-        if (!$userId && session()->get('nama')) {
-            $db = \Config\Database::connect();
-            $user = $db->table('users')->where('nama', session()->get('nama'))->get()->getRowArray();
-            $userId = $user ? $user['id'] : null;
+            
+            // Try by nama and email combination (most unique)
+            if (session()->get('nama') && session()->get('email')) {
+                $user = $db->table('users')
+                    ->where('nama', session()->get('nama'))
+                    ->where('email', session()->get('email'))
+                    ->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'RiwayatPemesanan - Found user by nama+email: ' . $userId);
+            }
+            
+            // If not found, try by email only
+            if (!$userId && session()->get('email')) {
+                $user = $db->table('users')->where('email', session()->get('email'))->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'RiwayatPemesanan - Found user by email: ' . $userId);
+            }
+            
+            // If still not found, try by username
+            if (!$userId && session()->get('username')) {
+                $user = $db->table('users')->where('username', session()->get('username'))->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'RiwayatPemesanan - Found user by username: ' . $userId);
+            }
         }
         
         return $userId;

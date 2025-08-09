@@ -25,26 +25,8 @@ class PaymentController extends Controller
             return redirect()->to('/riwayat-pemesanan')->with('error', 'ID pesanan tidak valid');
         }
 
-        // Cari user ID berdasarkan data session yang tersedia (sama seperti di Pemesanan)
-        $userId = null;
-        $db = \Config\Database::connect();
-        
-        // Coba cari berdasarkan nama dan email (kombinasi lebih unik)
-        if (session()->get('nama') && session()->get('email')) {
-            $user = $db->table('users')
-                ->where('nama', session()->get('nama'))
-                ->where('email', session()->get('email'))
-                ->get()->getRowArray();
-            $userId = $user ? $user['id'] : null;
-            log_message('info', 'Payment - Found user by nama+email: ' . $userId);
-        }
-        
-        // Jika tidak ketemu, coba dari email saja
-        if (!$userId && session()->get('email')) {
-            $user = $db->table('users')->where('email', session()->get('email'))->get()->getRowArray();
-            $userId = $user ? $user['id'] : null;
-            log_message('info', 'Payment - Found user by email: ' . $userId);
-        }
+        // Cari user ID berdasarkan data session yang tersedia
+        $userId = $this->getUserId();
         
         if (!$userId) {
             log_message('error', 'Payment - Cannot find user ID from session');
@@ -61,9 +43,14 @@ class PaymentController extends Controller
             return redirect()->to('/riwayat-pemesanan')->with('error', 'Pesanan tidak ditemukan');
         }
 
-        // Cek apakah pesanan menggunakan metode transfer
+        // Cek apakah pesanan menggunakan metode transfer dan masih pending payment
         if ($pesanan['metode_pembayaran'] !== 'transfer') {
             return redirect()->to('/riwayat-pemesanan')->with('error', 'Pesanan ini tidak menggunakan metode transfer');
+        }
+
+        if (!in_array($pesanan['status'], ['pending_payment', 'payment_rejected'])) {
+            $statusLabel = $this->getStatusLabel($pesanan['status']);
+            return redirect()->to('/riwayat-pemesanan')->with('error', "Pesanan sudah dalam status: $statusLabel");
         }
 
         $data = [
@@ -85,25 +72,10 @@ class PaymentController extends Controller
             }
 
             $orderId = $this->request->getPost('order_id');
+            $catatan = $this->request->getPost('catatan');
             
             // Cari user ID berdasarkan data session yang tersedia
-            $userId = null;
-            $db = \Config\Database::connect();
-            
-            // Coba cari berdasarkan nama dan email (kombinasi lebih unik)
-            if (session()->get('nama') && session()->get('email')) {
-                $user = $db->table('users')
-                    ->where('nama', session()->get('nama'))
-                    ->where('email', session()->get('email'))
-                    ->get()->getRowArray();
-                $userId = $user ? $user['id'] : null;
-            }
-            
-            // Jika tidak ketemu, coba dari email saja
-            if (!$userId && session()->get('email')) {
-                $user = $db->table('users')->where('email', session()->get('email'))->get()->getRowArray();
-                $userId = $user ? $user['id'] : null;
-            }
+            $userId = $this->getUserId();
 
             if (!$orderId || !$userId) {
                 return redirect()->back()->with('error', 'Data tidak lengkap');
@@ -112,6 +84,11 @@ class PaymentController extends Controller
             $pesanan = $this->pemesananModel->getPemesananByIdAndUser($orderId, $userId);
             if (!$pesanan) {
                 return redirect()->back()->with('error', 'Pesanan tidak ditemukan');
+            }
+
+            // Validasi status pesanan
+            if (!in_array($pesanan['status'], ['pending_payment', 'payment_rejected'])) {
+                return redirect()->back()->with('error', 'Pesanan tidak dapat diupdate bukti pembayaran pada status ini');
             }
 
             $file = $this->request->getFile('bukti_pembayaran');
@@ -135,20 +112,41 @@ class PaymentController extends Controller
                 mkdir($uploadPath, 0755, true);
             }
 
-            // Simpan file
-            $newName = $file->getRandomName();
-            $file->move($uploadPath, $newName);
+            // Hapus file lama jika ada
+            if (!empty($pesanan['bukti_pembayaran'])) {
+                $oldFilePath = WRITEPATH . $pesanan['bukti_pembayaran'];
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
 
-            // Update data pesanan
+            // Simpan file baru
+            $newName = $file->getRandomName();
+            if (!$file->move($uploadPath, $newName)) {
+                return redirect()->back()->with('error', 'Gagal mengupload file');
+            }
+
+            // Update data pesanan dengan status payment_confirmed (auto-confirm)
             $updateData = [
                 'bukti_pembayaran' => 'uploads/payments/' . $newName,
-                'status_pembayaran' => 'terkonfirmasi', // Langsung konfirmasi atau bisa 'pending' untuk review admin
+                'status' => 'payment_confirmed',
+                'status_pembayaran' => 'terkonfirmasi',
             ];
 
+            // Tambahkan catatan jika ada
+            if (!empty($catatan)) {
+                $updateData['catatan'] = $catatan;
+            }
+
             if ($this->pemesananModel->update($orderId, $updateData)) {
-                log_message('info', "Payment uploaded successfully - Order ID: $orderId");
-                return redirect()->to('/riwayat-pemesanan')->with('success', 'Bukti pembayaran berhasil diupload dan dikonfirmasi.');
+                log_message('info', "Payment uploaded and confirmed successfully - Order ID: $orderId");
+                return redirect()->to('/riwayat-pemesanan')->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda sedang diproses.');
             } else {
+                // Hapus file yang sudah diupload jika update database gagal
+                $uploadedFile = $uploadPath . $newName;
+                if (file_exists($uploadedFile)) {
+                    unlink($uploadedFile);
+                }
                 return redirect()->back()->with('error', 'Gagal menyimpan bukti pembayaran');
             }
 
@@ -156,5 +154,100 @@ class PaymentController extends Controller
             log_message('error', 'Error saat submit payment: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
+    }
+
+    // Method untuk admin menolak pembayaran
+    public function rejectPayment($orderId)
+    {
+        if (!session()->get('isAdmin')) {
+            return $this->response->setJSON(['error' => 'Unauthorized']);
+        }
+
+        $reason = $this->request->getPost('reason') ?? 'Bukti pembayaran tidak valid';
+        
+        $updateData = [
+            'status' => 'payment_rejected',
+            'status_pembayaran' => 'ditolak',
+            'catatan_admin' => $reason
+        ];
+
+        if ($this->pemesananModel->update($orderId, $updateData)) {
+            log_message('info', "Payment rejected for order ID: $orderId. Reason: $reason");
+            return $this->response->setJSON(['success' => true, 'message' => 'Pembayaran ditolak']);
+        }
+
+        return $this->response->setJSON(['error' => 'Gagal menolak pembayaran']);
+    }
+
+    // Method untuk admin mengkonfirmasi pembayaran manual
+    public function approvePayment($orderId)
+    {
+        if (!session()->get('isAdmin')) {
+            return $this->response->setJSON(['error' => 'Unauthorized']);
+        }
+
+        $updateData = [
+            'status' => 'processing',
+            'status_pembayaran' => 'terkonfirmasi'
+        ];
+
+        if ($this->pemesananModel->update($orderId, $updateData)) {
+            log_message('info', "Payment approved manually for order ID: $orderId");
+            return $this->response->setJSON(['success' => true, 'message' => 'Pembayaran dikonfirmasi']);
+        }
+
+        return $this->response->setJSON(['error' => 'Gagal mengkonfirmasi pembayaran']);
+    }
+
+    private function getUserId()
+    {
+        // Try multiple session keys for user ID
+        $userId = session()->get('user_id') ?? session()->get('id') ?? session()->get('userId');
+        
+        if (!$userId) {
+            // Try finding user by session data
+            $db = \Config\Database::connect();
+            
+            // Try by nama and email combination (most unique)
+            if (session()->get('nama') && session()->get('email')) {
+                $user = $db->table('users')
+                    ->where('nama', session()->get('nama'))
+                    ->where('email', session()->get('email'))
+                    ->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'Payment - Found user by nama+email: ' . $userId);
+            }
+            
+            // If not found, try by email only
+            if (!$userId && session()->get('email')) {
+                $user = $db->table('users')->where('email', session()->get('email'))->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'Payment - Found user by email: ' . $userId);
+            }
+            
+            // If still not found, try by username
+            if (!$userId && session()->get('username')) {
+                $user = $db->table('users')->where('username', session()->get('username'))->get()->getRowArray();
+                $userId = $user ? $user['id'] : null;
+                log_message('info', 'Payment - Found user by username: ' . $userId);
+            }
+        }
+        
+        return $userId;
+    }
+
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'pending_payment' => 'Menunggu Pembayaran',
+            'payment_confirmed' => 'Pembayaran Dikonfirmasi',
+            'payment_rejected' => 'Pembayaran Ditolak',
+            'processing' => 'Sedang Diproses',
+            'shipped' => 'Dikirim',
+            'completed' => 'Selesai',
+            'cancelled' => 'Dibatalkan'
+        ];
+
+        return $labels[$status] ?? ucfirst($status);
     }
 }

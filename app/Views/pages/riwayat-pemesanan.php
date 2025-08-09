@@ -17,11 +17,15 @@
                             <input type="text" class="form-control border-start-0" placeholder="Cari pesanan..." id="searchInput">
                         </div>
                     </div>
-                    <select class="form-select" style="max-width: 150px;" id="statusFilter">
+                    <select class="form-select" style="max-width: 180px;" id="statusFilter">
                         <option value="">Semua Status</option>
-                        <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
-                        <option value="dibatalkan">Dibatalkan</option>
+                        <option value="pending_payment">Menunggu Pembayaran</option>
+                        <option value="payment_confirmed">Pembayaran Dikonfirmasi</option>
+                        <option value="payment_rejected">Pembayaran Ditolak</option>
+                        <option value="processing">Sedang Diproses</option>
+                        <option value="shipped">Dikirim</option>
+                        <option value="completed">Selesai</option>
+                        <option value="cancelled">Dibatalkan</option>
                     </select>
                 </div>
             </div>
@@ -39,20 +43,20 @@
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 bg-success-subtle h-100">
+                <div class="card border-0 bg-warning-subtle h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-check-circle text-success fs-1 mb-3"></i>
-                        <h5 class="fw-bold text-success mb-1"><?= $statistik['selesai'] ?></h5>
-                        <p class="text-muted mb-0">Selesai</p>
+                        <i class="bi bi-hourglass-split text-warning fs-1 mb-3"></i>
+                        <h5 class="fw-bold text-warning mb-1"><?= $statistik['pending_payment'] + $statistik['processing'] + $statistik['shipped'] ?></h5>
+                        <p class="text-muted mb-0">Sedang Berjalan</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 bg-warning-subtle h-100">
+                <div class="card border-0 bg-success-subtle h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-clock text-warning fs-1 mb-3"></i>
-                        <h5 class="fw-bold text-warning mb-1"><?= $statistik['diproses'] ?></h5>
-                        <p class="text-muted mb-0">Diproses</p>
+                        <i class="bi bi-check-circle text-success fs-1 mb-3"></i>
+                        <h5 class="fw-bold text-success mb-1"><?= $statistik['completed'] ?></h5>
+                        <p class="text-muted mb-0">Selesai</p>
                     </div>
                 </div>
             </div>
@@ -60,7 +64,7 @@
                 <div class="card border-0 bg-danger-subtle h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-x-circle text-danger fs-1 mb-3"></i>
-                        <h5 class="fw-bold text-danger mb-1"><?= $statistik['dibatalkan'] ?></h5>
+                        <h5 class="fw-bold text-danger mb-1"><?= $statistik['cancelled'] ?></h5>
                         <p class="text-muted mb-0">Dibatalkan</p>
                     </div>
                 </div>
@@ -72,26 +76,7 @@
             <?php if (!empty($riwayatPemesanan)): ?>
                 <?php foreach ($riwayatPemesanan as $pesanan): ?>
                     <?php
-                    $statusBadge = '';
-                    $statusIcon = '';
-                    switch ($pesanan['status']) {
-                        case 'selesai':
-                            $statusBadge = 'bg-success-subtle text-success';
-                            $statusIcon = 'bi-check-circle';
-                            break;
-                        case 'diproses':
-                            $statusBadge = 'bg-warning-subtle text-warning';
-                            $statusIcon = 'bi-clock';
-                            break;
-                        case 'dibatalkan':
-                            $statusBadge = 'bg-danger-subtle text-danger';
-                            $statusIcon = 'bi-x-circle';
-                            break;
-                        default:
-                            $statusBadge = 'bg-secondary-subtle text-secondary';
-                            $statusIcon = 'bi-hourglass-split';
-                    }
-                    
+                    $statusConfig = getStatusConfig($pesanan['status']);
                     $unit = (stripos($pesanan['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
                     ?>
                     
@@ -105,8 +90,8 @@
                                             <i class="bi bi-calendar me-1"></i><?= date('d M Y', strtotime($pesanan['tanggal_pesan'])) ?>
                                         </small>
                                     </div>
-                                    <span class="badge <?= $statusBadge ?> rounded-pill px-3 py-2">
-                                        <i class="<?= $statusIcon ?> me-1"></i><?= ucfirst($pesanan['status']) ?>
+                                    <span class="badge <?= $statusConfig['badge'] ?> rounded-pill px-3 py-2">
+                                        <i class="<?= $statusConfig['icon'] ?> me-1"></i><?= $statusConfig['label'] ?>
                                     </span>
                                 </div>
                                 
@@ -126,16 +111,34 @@
                                         <i class="bi bi-eye me-1"></i>Lihat Detail
                                     </button>
                                     
-                                    <?php if ($pesanan['status'] === 'diproses'): ?>
+                                    <?php if ($pesanan['status'] === 'pending_payment'): ?>
+                                        <a href="<?= base_url('/payment/confirm/' . $pesanan['id']) ?>" class="btn btn-warning btn-sm rounded-pill flex-fill">
+                                            <i class="bi bi-credit-card me-1"></i>Bayar Sekarang
+                                        </a>
+                                    <?php elseif (in_array($pesanan['status'], ['processing', 'pending_payment'])): ?>
                                         <button class="btn btn-outline-danger btn-sm rounded-pill flex-fill" onclick="batalkanPesanan(<?= $pesanan['id'] ?>)">
                                             <i class="bi bi-x-circle me-1"></i>Batalkan
                                         </button>
-                                    <?php elseif ($pesanan['status'] === 'selesai'): ?>
+                                    <?php elseif ($pesanan['status'] === 'completed'): ?>
                                         <button class="btn btn-success btn-sm rounded-pill flex-fill" onclick="pesanLagi(<?= $pesanan['produk'] ?>)">
                                             <i class="bi bi-arrow-repeat me-1"></i>Pesan Lagi
                                         </button>
                                     <?php endif; ?>
                                 </div>
+
+                                <!-- Status Progress for active orders -->
+                                <?php if (in_array($pesanan['status'], ['pending_payment', 'payment_confirmed', 'processing', 'shipped'])): ?>
+                                    <div class="mt-3">
+                                        <small class="text-muted d-block mb-2">Progress Pesanan:</small>
+                                        <div class="progress" style="height: 6px;">
+                                            <?php 
+                                            $progress = getOrderProgress($pesanan['status']);
+                                            ?>
+                                            <div class="progress-bar bg-<?= $statusConfig['color'] ?>" style="width: <?= $progress ?>%"></div>
+                                        </div>
+                                        <small class="text-muted mt-1"><?= $progress ?>% selesai</small>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -188,6 +191,74 @@
     </div>
 </div>
 
+<?php
+function getStatusConfig($status) {
+    $configs = [
+        'pending_payment' => [
+            'label' => 'Menunggu Pembayaran',
+            'badge' => 'bg-warning-subtle text-warning',
+            'icon' => 'bi-credit-card',
+            'color' => 'warning'
+        ],
+        'payment_confirmed' => [
+            'label' => 'Pembayaran Dikonfirmasi',
+            'badge' => 'bg-info-subtle text-info',
+            'icon' => 'bi-check-circle',
+            'color' => 'info'
+        ],
+        'payment_rejected' => [
+            'label' => 'Pembayaran Ditolak',
+            'badge' => 'bg-danger-subtle text-danger',
+            'icon' => 'bi-x-circle',
+            'color' => 'danger'
+        ],
+        'processing' => [
+            'label' => 'Sedang Diproses',
+            'badge' => 'bg-primary-subtle text-primary',
+            'icon' => 'bi-gear',
+            'color' => 'primary'
+        ],
+        'shipped' => [
+            'label' => 'Dikirim',
+            'badge' => 'bg-info-subtle text-info',
+            'icon' => 'bi-truck',
+            'color' => 'info'
+        ],
+        'completed' => [
+            'label' => 'Selesai',
+            'badge' => 'bg-success-subtle text-success',
+            'icon' => 'bi-check-circle-fill',
+            'color' => 'success'
+        ],
+        'cancelled' => [
+            'label' => 'Dibatalkan',
+            'badge' => 'bg-danger-subtle text-danger',
+            'icon' => 'bi-x-circle-fill',
+            'color' => 'danger'
+        ]
+    ];
+    
+    return $configs[$status] ?? [
+        'label' => ucfirst($status),
+        'badge' => 'bg-secondary-subtle text-secondary',
+        'icon' => 'bi-hourglass-split',
+        'color' => 'secondary'
+    ];
+}
+
+function getOrderProgress($status) {
+    $progress = [
+        'pending_payment' => 10,
+        'payment_confirmed' => 25,
+        'processing' => 50,
+        'shipped' => 80,
+        'completed' => 100
+    ];
+    
+    return $progress[$status] ?? 0;
+}
+?>
+
 <style>
 .order-card {
     transition: all 0.3s ease;
@@ -214,6 +285,15 @@
     box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
 }
 
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
 @media (max-width: 768px) {
     .display-5 {
         font-size: 2rem !important;
@@ -225,6 +305,14 @@
     
     .card-body {
         padding: 1.5rem !important;
+    }
+    
+    .d-flex.gap-2 {
+        flex-direction: column;
+    }
+    
+    .d-flex.gap-2 .btn {
+        margin-bottom: 0.5rem;
     }
 }
 
@@ -252,6 +340,18 @@
 .timeline-item i {
     font-size: 1.2rem;
     z-index: 1;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.btn-warning:hover {
+    background-color: #ffca2c;
+    border-color: #ffc720;
+    color: #000;
 }
 </style>
 
@@ -306,9 +406,23 @@ function viewOrderDetail(orderId) {
             if (data.success) {
                 const order = data.data;
                 const unit = order.nama_kategori.toLowerCase().includes('sayur') ? 'ikat' : 'kg';
+                const statusConfig = getStatusConfigJS(order.status);
                 
                 content.innerHTML = `
                     <div class="row g-4">
+                        <div class="col-12">
+                            <div class="alert alert-${statusConfig.color} border-0">
+                                <div class="d-flex align-items-center">
+                                    <i class="${statusConfig.icon} me-2 fs-4"></i>
+                                    <div>
+                                        <strong>Status: ${statusConfig.label}</strong>
+                                        <div class="small mt-1">
+                                            ${getStatusDescription(order.status)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <h6 class="fw-bold mb-3">Informasi Produk</h6>
                             <div class="bg-light p-3 rounded-3">
@@ -324,10 +438,19 @@ function viewOrderDetail(orderId) {
                             <div class="bg-light p-3 rounded-3">
                                 <p class="mb-2"><strong>No. Pesanan:</strong> #${order.pemesanan}</p>
                                 <p class="mb-2"><strong>Tanggal:</strong> ${formatDate(order.tanggal_pesan)}</p>
-                                <p class="mb-2"><strong>Status:</strong> <span class="badge bg-${getStatusColor(order.status)}">${order.status}</span></p>
+                                <p class="mb-2"><strong>Metode Bayar:</strong> ${order.metode_pembayaran || 'Tunai'}</p>
                                 <p class="mb-0"><strong>Pemesan:</strong> ${escapeHtml(order.nama_user)}</p>
                             </div>
                         </div>
+                        ${order.status === 'pending_payment' && order.metode_pembayaran === 'transfer' ? `
+                        <div class="col-12">
+                            <div class="text-center">
+                                <a href="<?= base_url('/payment/confirm') ?>/${order.id}" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-credit-card me-2"></i>Lakukan Pembayaran
+                                </a>
+                            </div>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             } else {
@@ -373,11 +496,9 @@ function batalkanPesanan(orderId) {
     }
 }
 
-
 function pesanLagi(productId) {
     window.location.href = `<?= base_url('pemesanan') ?>?produk=${productId}`;
 }
-
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -394,12 +515,63 @@ function formatDate(dateString) {
     });
 }
 
-function getStatusColor(status) {
-    switch(status) {
-        case 'selesai': return 'success';
-        case 'diproses': return 'warning';
-        case 'dibatalkan': return 'danger';
-        default: return 'secondary';
-    }
+function getStatusConfigJS(status) {
+    const configs = {
+        'pending_payment': {
+            label: 'Menunggu Pembayaran',
+            icon: 'bi-credit-card',
+            color: 'warning'
+        },
+        'payment_confirmed': {
+            label: 'Pembayaran Dikonfirmasi',
+            icon: 'bi-check-circle',
+            color: 'info'
+        },
+        'payment_rejected': {
+            label: 'Pembayaran Ditolak',
+            icon: 'bi-x-circle',
+            color: 'danger'
+        },
+        'processing': {
+            label: 'Sedang Diproses',
+            icon: 'bi-gear',
+            color: 'primary'
+        },
+        'shipped': {
+            label: 'Dikirim',
+            icon: 'bi-truck',
+            color: 'info'
+        },
+        'completed': {
+            label: 'Selesai',
+            icon: 'bi-check-circle-fill',
+            color: 'success'
+        },
+        'cancelled': {
+            label: 'Dibatalkan',
+            icon: 'bi-x-circle-fill',
+            color: 'danger'
+        }
+    };
+    
+    return configs[status] || {
+        label: status,
+        icon: 'bi-hourglass-split',
+        color: 'secondary'
+    };
+}
+
+function getStatusDescription(status) {
+    const descriptions = {
+        'pending_payment': 'Silakan lakukan pembayaran untuk melanjutkan pesanan',
+        'payment_confirmed': 'Pembayaran Anda telah dikonfirmasi, pesanan akan segera diproses',
+        'payment_rejected': 'Pembayaran ditolak, silakan hubungi customer service',
+        'processing': 'Pesanan Anda sedang disiapkan',
+        'shipped': 'Pesanan Anda sedang dalam perjalanan',
+        'completed': 'Pesanan telah selesai dan diterima',
+        'cancelled': 'Pesanan telah dibatalkan'
+    };
+    
+    return descriptions[status] || 'Status pesanan';
 }
 </script>
