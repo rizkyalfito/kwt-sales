@@ -29,11 +29,36 @@ class Auth extends Controller
     {
         // Validasi input terlebih dahulu
         $validation = $this->validate([
-            'name' => 'required',
-            'username' => 'required|is_unique[users.username]',
-            'email' => 'required|valid_email',
-            'alamat' => 'required',
-            'password' => 'required|min_length[6]',
+            'name' => [
+                'rules' => 'required',
+                'errors' => ['required' => 'Nama wajib diisi']
+            ],
+            'username' => [
+                'rules' => 'required|is_unique[users.username]',
+                'errors' => [
+                    'required' => 'Username wajib diisi',
+                    'is_unique' => 'Username sudah digunakan'
+                ]
+            ],
+            'email' => [
+                'rules' => 'required|valid_email|is_unique[users.email]',
+                'errors' => [
+                    'required' => 'Email wajib diisi',
+                    'valid_email' => 'Format email tidak valid',
+                    'is_unique' => 'Email sudah terdaftar'
+                ]
+            ],
+            'alamat' => [
+                'rules' => 'required',
+                'errors' => ['required' => 'Alamat wajib diisi']
+            ],
+            'password' => [
+                'rules' => 'required|min_length[6]',
+                'errors' => [
+                    'required' => 'Password wajib diisi',
+                    'min_length' => 'Password minimal 6 karakter'
+                ]
+            ],
             'ktp_photo' => [
                 'rules' => 'uploaded[ktp_photo]|max_size[ktp_photo,2048]|is_image[ktp_photo]|mime_in[ktp_photo,image/jpg,image/jpeg,image/png]',
                 'errors' => [
@@ -46,7 +71,7 @@ class Auth extends Controller
         ]);
 
         if (!$validation) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         // Handle file upload
@@ -55,41 +80,68 @@ class Auth extends Controller
         
         if ($ktpPhoto->isValid() && !$ktpPhoto->hasMoved()) {
             $newName = $ktpPhoto->getRandomName();
-            $ktpPhoto->move(ROOTPATH . 'public/assets/image/ktp', $newName);
+            
+            // Buat direktori jika belum ada
+            $uploadPath = ROOTPATH . 'public/assets/image/ktp/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            
+            if (!$ktpPhoto->move($uploadPath, $newName)) {
+                return redirect()->back()->withInput()->with('error', 'Gagal mengupload foto KTP.');
+            }
+        } else {
+            return redirect()->back()->withInput()->with('error', 'File KTP tidak valid.');
         }
 
         // Mulai transaksi database
         $this->db->transStart();
 
-        $data = [
-            'nama' => $this->request->getVar('name'),
-            'username' => $this->request->getVar('username'),
-            'email' => $this->request->getVar('email'),
-            'alamat' => $this->request->getVar('alamat'),
-            'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
-            'level' => 'user',
-            'ktp_photo' => $newName ? 'assets/image/ktp/' . $newName : null
-        ];
+        try {
+            $data = [
+                'nama' => $this->request->getVar('name'),
+                'username' => $this->request->getVar('username'),
+                'email' => $this->request->getVar('email'),
+                'alamat' => $this->request->getVar('alamat'),
+                'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+                'level' => 'user',
+                'ktp_photo' => $newName ? 'assets/image/ktp/' . $newName : null
+            ];
 
-        $this->userModel->insert($data);
+            $insertResult = $this->userModel->insert($data);
+            
+            if (!$insertResult) {
+                throw new \Exception('Gagal menyimpan data user');
+            }
 
-        $this->db->transComplete();
+            $this->db->transComplete();
 
-        if ($this->db->transStatus() === false) {
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Transaksi database gagal');
+            }
+
+            // Set session untuk auto login setelah registrasi
+            $this->session->set([
+                'isLoggedIn' => true,
+                'nama' => $data['nama'],
+                'level' => $data['level'],
+                'alamat' => $data['alamat'],
+                'email' => $data['email']
+            ]);
+
+            return redirect()->to('/')->with('success', 'Registrasi berhasil! Selamat datang.');
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            
             // Delete uploaded file if database transaction fails
             if ($newName && file_exists(ROOTPATH . 'public/assets/image/ktp/' . $newName)) {
                 unlink(ROOTPATH . 'public/assets/image/ktp/' . $newName);
             }
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data.');
+            
+            log_message('error', 'Registration failed: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Registrasi gagal. Silakan coba lagi.');
         }
-
-        $this->session->set('isLoggedIn', true);
-        $this->session->set('nama', $data['nama']);
-        $this->session->set('level', $data['level']);
-        $this->session->set('alamat', $data['alamat']);
-        $this->session->set('email', $data['email']);
-
-        return redirect()->to('/');
     }
 
     public function postLogin()
