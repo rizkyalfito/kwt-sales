@@ -107,7 +107,7 @@ class PaymentController extends Controller
             }
 
             // Pastikan folder upload ada
-            $uploadPath = WRITEPATH . 'uploads/payments/';
+            $uploadPath = 'assets/uploads/payments/';
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
             }
@@ -128,7 +128,7 @@ class PaymentController extends Controller
 
             // Update data pesanan dengan status payment_confirmed (auto-confirm)
             $updateData = [
-                'bukti_pembayaran' => 'uploads/payments/' . $newName,
+                'bukti_pembayaran' => $uploadPath . $newName,
                 'status' => 'payment_confirmed',
                 'status_pembayaran' => 'terkonfirmasi',
             ];

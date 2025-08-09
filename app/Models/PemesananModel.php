@@ -174,7 +174,7 @@ class PemesananModel extends Model
                 $updateData['status_pembayaran'] = 'terkonfirmasi';
                 break;
             case 'payment_rejected':
-                $updateData['status_pembayaran'] = 'ditolak';
+                $updateData['status_pembayaran'] = 'gagal';
                 break;
             case 'cancelled':
                 // Keep existing payment status for cancelled orders

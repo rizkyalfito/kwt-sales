@@ -60,7 +60,7 @@
                                 <td><?= $booking['jumlah'] ?></td>
                                 <td>Rp. <?= number_format($booking['total_harga']) ?></td>
                                 <td><?= $booking['tanggal_pesan'] ?></td>
-                                <td><?= $booking['status'] ?></td>
+                                <td><?= strtoupper(str_replace('_', ' ', $booking['status'])) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
