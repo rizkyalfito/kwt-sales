@@ -115,7 +115,10 @@
                                         <a href="<?= base_url('/payment/confirm/' . $pesanan['id']) ?>" class="btn btn-warning btn-sm rounded-pill flex-fill">
                                             <i class="bi bi-credit-card me-1"></i>Bayar Sekarang
                                         </a>
-                                    <?php elseif (in_array($pesanan['status'], ['processing', 'pending_payment'])): ?>
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill flex-fill" onclick="batalkanPesanan(<?= $pesanan['id'] ?>)">
+                                            <i class="bi bi-x-circle me-1"></i>Batalkan
+                                        </button>
+                                    <?php elseif (in_array($pesanan['status'], ['processing', 'payment_confirmed'])): ?>
                                         <button class="btn btn-outline-danger btn-sm rounded-pill flex-fill" onclick="batalkanPesanan(<?= $pesanan['id'] ?>)">
                                             <i class="bi bi-x-circle me-1"></i>Batalkan
                                         </button>
