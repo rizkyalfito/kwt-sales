@@ -34,10 +34,28 @@ class Auth extends Controller
             'email' => 'required|valid_email',
             'alamat' => 'required',
             'password' => 'required|min_length[6]',
+            'ktp_photo' => [
+                'rules' => 'uploaded[ktp_photo]|max_size[ktp_photo,2048]|is_image[ktp_photo]|mime_in[ktp_photo,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'uploaded' => 'Foto KTP wajib diupload',
+                    'max_size' => 'Ukuran file maksimal 2MB',
+                    'is_image' => 'File harus berupa gambar',
+                    'mime_in' => 'Format file harus JPG, JPEG, atau PNG'
+                ]
+            ]
         ]);
 
         if (!$validation) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        // Handle file upload
+        $ktpPhoto = $this->request->getFile('ktp_photo');
+        $newName = '';
+        
+        if ($ktpPhoto->isValid() && !$ktpPhoto->hasMoved()) {
+            $newName = $ktpPhoto->getRandomName();
+            $ktpPhoto->move(ROOTPATH . 'public/assets/image/ktp', $newName);
         }
 
         // Mulai transaksi database
@@ -49,7 +67,8 @@ class Auth extends Controller
             'email' => $this->request->getVar('email'),
             'alamat' => $this->request->getVar('alamat'),
             'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
-            'level' => 'user'
+            'level' => 'user',
+            'ktp_photo' => $newName ? 'assets/image/ktp/' . $newName : null
         ];
 
         $this->userModel->insert($data);
@@ -57,6 +76,10 @@ class Auth extends Controller
         $this->db->transComplete();
 
         if ($this->db->transStatus() === false) {
+            // Delete uploaded file if database transaction fails
+            if ($newName && file_exists(ROOTPATH . 'public/assets/image/ktp/' . $newName)) {
+                unlink(ROOTPATH . 'public/assets/image/ktp/' . $newName);
+            }
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data.');
         }
 

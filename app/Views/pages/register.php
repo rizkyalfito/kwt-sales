@@ -4,7 +4,7 @@
         <?= session()->getFlashdata('error') ?>
     </div>
 <?php endif; ?>
-<form method="post" action="<?= base_url('/register') ?>">
+<form method="post" action="<?= base_url('/register') ?>" enctype="multipart/form-data">
     <div class="mb-3">
         <label for="name" class="form-label">Full Name</label>
         <input type="text" class="form-control" id="name" placeholder="Enter full name" name="name" required />
@@ -24,6 +24,11 @@
     <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" required />
+    </div>
+    <div class="mb-3">
+        <label for="ktp_photo" class="form-label">Foto KTP</label>
+        <input type="file" class="form-control" id="ktp_photo" name="ktp_photo" accept="image/*" required />
+        <small class="form-text text-muted">Upload foto KTP dalam format JPG, JPEG, atau PNG (maksimal 2MB)</small>
     </div>
     <button type="submit" class="btn btn-primary w-100">Register</button>
     <div class="d-flex flex-column mt-3 text-center">
