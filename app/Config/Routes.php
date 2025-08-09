@@ -10,15 +10,18 @@ $routes->get('/', 'Home::index');
 $routes->get('/produk-public', 'ProdukPublic::index');
 $routes->get('/produk-public/cari', 'ProdukPublic::cari');
 
-
 $routes->group('', ['filter' => 'user'], function ($routes) {
     $routes->get('/pemesanan', 'Pemesanan::index');
     $routes->post('/pemesanan/submit', 'Pemesanan::submitOrder');
     $routes->get('/riwayat-pemesanan', 'RiwayatPemesanan::index');
     $routes->get('/riwayat-pemesanan/detail/(:num)', 'RiwayatPemesanan::detail/$1');
     $routes->post('/riwayat-pemesanan/batalkan/(:num)', 'RiwayatPemesanan::batalkan/$1');
-});
+    
+    $routes->get('/payment/confirm/(:num)', 'PaymentController::confirmPayment/$1');
+    $routes->post('/payment/submit', 'PaymentController::submitPayment');
 
+    $routes->get('/debug/session', 'Pemesanan::debugSession');
+});
 
 $routes->group('', ['filter' => 'guest'], function ($routes) {
     $routes->get('/login', 'Auth::login');

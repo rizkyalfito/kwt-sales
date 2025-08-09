@@ -46,6 +46,21 @@ class CreatePemesananTable extends Migration
                 'constraint' => ['diproses', 'dikirim', 'selesai', 'dibatalkan'],
                 'default'    => 'diproses',
             ],
+            'metode_pembayaran' => [
+                'type'       => 'ENUM',
+                'constraint' => ['cod', 'transfer'],
+                'default'    => 'cod',
+            ],
+            'bukti_pembayaran' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+            ],
+            'status_pembayaran' => [
+                'type'       => 'ENUM',
+                'constraint' => ['pending', 'terkonfirmasi', 'gagal'],
+                'default'    => 'pending',
+            ],
         ]);
         $this->forge->addKey('id', true);
         // Foreign keys can be added here if supported by the DB and CodeIgniter version
