@@ -41,7 +41,7 @@
                                             <optgroup label="<?= esc(ucfirst($kategori)) ?>">
                                                 <?php foreach ($produkList as $produk): ?>
                                                     <?php 
-                                                    $unit = (stripos($produk['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
+                                                    $unit = strtoupper($produk['satuan']);
                                                     $isSelected = (isset($selectedProductId) && $selectedProductId == $produk['id']) ? 'selected' : '';
                                                     ?>
                                                     <option value="<?= $produk['id'] ?>" 

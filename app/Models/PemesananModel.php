@@ -122,7 +122,7 @@ class PemesananModel extends Model
     public function getPemesananWithProduk($id = null)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, u.nama as nama_user');
+        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, pr.satuan,u.nama as nama_user');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
         $builder->join('users u', 'u.id = p.user', 'left');
         
@@ -278,7 +278,7 @@ class PemesananModel extends Model
     public function getDetailPemesanan($id, $userId)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, pr.harga as harga_satuan, u.nama as nama_user, u.alamat, u.email');
+        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, pr.harga as harga_satuan, pr.satuan, u.nama as nama_user, u.alamat, u.email');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
         $builder->join('users u', 'u.id = p.user', 'left');
         $builder->where('p.id', $id);

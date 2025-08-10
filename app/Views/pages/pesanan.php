@@ -43,13 +43,13 @@
                                 <td><?= $booking['pemesanan'] ?></td>
                                 <td><?= $booking['nama_user'] ?></td>
                                 <td><?= $booking['nama_produk'] ?></td>
-                                <td><?= $booking['jumlah'] ?></td>
+                                <td><?= $booking['jumlah'] ?> <?= $booking['satuan'] ?></td>
                                 <td>Rp. <?= number_format($booking['total_harga']) ?></td>
                                 <td><?= $booking['tanggal_pesan'] ?></td>
                                 <td><?= strtoupper($booking['metode_pembayaran']) ?></td>
                                 <td>
                                     <?php if ($booking['bukti_pembayaran']) : ?>
-                                        <img width="52" height="52" src="<?= base_url('/') . $booking['bukti_pembayaran'] ?>" alt="<?= $booking['nama_user'] ?>">
+                                        <img style="cursor: pointer" onclick="window.open('<?= base_url('/') . $booking['bukti_pembayaran'] ?>')" width="52" height="52" src="<?= base_url('/') . $booking['bukti_pembayaran'] ?>" alt="<?= $booking['nama_user'] ?>">
                                     <?php else : ?>
                                         COD
                                     <?php endif; ?>

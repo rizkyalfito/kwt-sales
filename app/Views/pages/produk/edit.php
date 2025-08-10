@@ -55,6 +55,18 @@
                                 >
                             </div>
                             <div class="mb-2">
+                                <label for="satuan" class="form-label">Satuan</label>
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        id="satuan"
+                                        placeholder="Masukkan satuan produk"
+                                        name="satuan"
+                                        required
+                                        value="<?= $this->data['product']['satuan'] ?>"
+                                >
+                            </div>
+                            <div class="mb-2">
                                 <label for="harga" class="form-label">Harga</label>
                                 <input
                                         type="number"

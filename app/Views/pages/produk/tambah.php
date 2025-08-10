@@ -35,6 +35,10 @@
                                 <input type="number" class="form-control" id="stok" placeholder="Masukkan stok produk" name="stok" required>
                             </div>
                             <div class="mb-2">
+                                <label for="satuan" class="form-label">Satuan</label>
+                                <input type="text" class="form-control" id="satuan" placeholder="Masukkan satuan produk" name="satuan" required>
+                            </div>
+                            <div class="mb-2">
                                 <label for="harga" class="form-label">Harga</label>
                                 <input type="number" class="form-control" id="harga" placeholder="Masukkan harga produk" name="harga" required>
                             </div>

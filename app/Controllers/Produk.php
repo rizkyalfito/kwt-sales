@@ -55,6 +55,7 @@ class Produk extends Controller
             'nama_produk' => $this->request->getVar('produk'),
             'nama_kategori' => $this->request->getVar('kategori'),
             'stok' => $this->request->getVar('stok'),
+            'satuan' => $this->request->getVar('satuan'),
             'harga' => $this->request->getVar('harga'),
             'detail' => $this->request->getVar('detail'),
         ];
@@ -94,6 +95,7 @@ class Produk extends Controller
             'nama_produk' => $this->request->getVar('produk'),
             'nama_kategori' => $this->request->getVar('kategori'),
             'stok' => $this->request->getVar('stok'),
+            'satuan' => $this->request->getVar('satuan'),
             'harga' => $this->request->getVar('harga'),
             'detail' => $this->request->getVar('detail'),
         ];

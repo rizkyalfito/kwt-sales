@@ -18,7 +18,7 @@
         <?php if (!empty($produk) && count($produk) > 0): ?>
             <div class="row g-4" id="produkContainer">
                 <!-- Initial products akan dimuat di sini -->
-                <?php 
+                <?php
                 $produkModel = new \App\Models\ProdukModel();
                 // Tampilkan 3 produk pertama sebagai default
                 $initialProducts = array_slice($produk, 0, 3);
@@ -87,7 +87,7 @@
                                             <?= $produkModel->formatRupiah($item['harga']) ?>
                                         </span>
                                         <span class="text-muted ms-1">
-                                            <?= (stripos($item['nama_kategori'], 'sayur') !== false) ? '/ikat' : '/kg' ?>
+                                            <?= (stripos($item['nama_kategori'], 'sayur') !== false) ?> /<?= strtoupper($item['satuan']) ?>
                                         </span>
                                     </div>
                                 </div>
@@ -97,8 +97,7 @@
                                     <div class="d-flex align-items-center">
                                         <i class="bi bi-box-seam text-info me-2"></i>
                                         <span class="text-muted fs-6">
-                                            <strong>Stok:</strong> <?= esc($item['stok']) ?>
-                                            <?= (stripos($item['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg' ?>
+                                            <strong>Stok:</strong> <?= esc($item['stok']) ?> <?= strtoupper($item['satuan']) ?>
                                         </span>
                                     </div>
                                 </div>

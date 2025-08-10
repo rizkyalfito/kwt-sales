@@ -35,7 +35,7 @@
                             <div class="col-md-6">
                                 <p><strong>Nomor Pesanan:</strong> #<?= $pesanan['pemesanan'] ?></p>
                                 <p><strong>Produk:</strong> <?= esc($pesanan['nama_produk']) ?></p>
-                                <p><strong>Jumlah:</strong> <?= $pesanan['jumlah'] ?> <?= $pesanan['nama_kategori'] == 'sayur' ? 'ikat' : 'kg' ?></p>
+                                <p><strong>Jumlah:</strong> <?= $pesanan['jumlah'] ?> <?= strtoupper($pesanan['satuan']) ?></p>
                             </div>
                             <div class="col-md-6">
                                 <p><strong>Total Pembayaran:</strong></p>

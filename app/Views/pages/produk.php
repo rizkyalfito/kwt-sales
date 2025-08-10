@@ -35,6 +35,7 @@
                             <th>Nama Produk</th>
                             <th>Nama Kategori</th>
                             <th>Stok</th>
+                            <th>Satuan</th>
                             <th>Harga</th>
                             <th>Detail</th>
                             <th>Gambar</th>
@@ -49,6 +50,7 @@
                                 <td><?= $product['nama_produk'] ?></td>
                                 <td><?= $product['nama_kategori'] ?></td>
                                 <td><?= $product['stok'] ?></td>
+                                <td><?= $product['satuan'] ?></td>
                                 <td><?= $product['harga'] ?></td>
                                 <td><?= $product['detail'] ?></td>
                                 <td>
