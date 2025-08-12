@@ -71,8 +71,8 @@
                                             Batalkan
                                         </a>
                                     <?php elseif ($booking['status'] === 'shipped') : ?>
-                                        <a href="<?= base_url('pesanan/ubah/status/completed/') . $booking['id'] ?>" class="btn btn-success btn-sm">
-                                            Selesai
+                                        <a href="<?= base_url('pesanan/ubah/status/completed/') . $booking['id'] ?>" class="btn btn-warning btn-sm">
+                                            Dikirim
                                         </a>
                                     <?php elseif ($booking['status'] === 'payment_rejected') : ?>
                                         <span class="badge text-bg-danger">Pembayaran Ditolak</span>
