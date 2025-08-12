@@ -49,13 +49,7 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="/dashboard" class="brand-link">
-      <i class="fas fa-store"></i>
-      <span class="brand-text font-weight-light">KWT Sales</span>
-    </a>
-
+  <aside class="main-sidebar sidebar-dark-primary elevation-4 pt-5">
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar Menu -->
