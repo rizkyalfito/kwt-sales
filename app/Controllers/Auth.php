@@ -121,15 +121,20 @@ class Auth extends Controller
             }
 
             // Set session untuk auto login setelah registrasi
-            $this->session->set([
+            $sessionData = [
                 'isLoggedIn' => true,
                 'nama' => $data['nama'],
                 'level' => $data['level'],
                 'alamat' => $data['alamat'],
                 'email' => $data['email']
-            ]);
+            ];
+            
+            $this->session->set($sessionData);
+            
+            // Set flash message dengan benar
+            session()->setFlashdata('success', 'Registrasi berhasil! Selamat datang, ' . $data['nama'] . '.');
 
-            return redirect()->to('/')->with('success', 'Registrasi berhasil! Selamat datang.');
+            return redirect()->to('/');
 
         } catch (\Exception $e) {
             $this->db->transRollback();
@@ -158,12 +163,22 @@ class Auth extends Controller
         }
 
         if (password_verify($credentials['password'], $dataUser['password'])) {
-            $this->session->set('isLoggedIn', true);
-            $this->session->set('nama', $dataUser['nama']);
-            $this->session->set('level', $dataUser['level']);
-            $this->session->set('alamat', $dataUser['alamat']);
-            $this->session->set('email', $dataUser['email']);
-            return $dataUser['level'] === 'admin' ? redirect()->to('/dashboard') : redirect()->to('/');
+            $sessionData = [
+                'isLoggedIn' => true,
+                'nama' => $dataUser['nama'],
+                'level' => $dataUser['level'],
+                'alamat' => $dataUser['alamat'],
+                'email' => $dataUser['email']
+            ];
+            
+            $this->session->set($sessionData);
+            
+            // Set flash message dengan benar
+            session()->setFlashdata('success', 'Login berhasil! Selamat datang kembali, ' . $dataUser['nama'] . '.');
+            
+            return $dataUser['level'] === 'admin' 
+                ? redirect()->to('/dashboard') 
+                : redirect()->to('/');
         } else {
             return redirect()->to('/login')->with('error', 'Username atau password salah!');
         }
@@ -172,6 +187,7 @@ class Auth extends Controller
     public function logout()
     {
         $this->session->destroy();
+        session()->setFlashdata('success', 'Anda telah berhasil logout.');
         return redirect()->to('/login');
     }
 
@@ -221,7 +237,8 @@ class Auth extends Controller
         $emailService->setMailType('html');
 
         if ($emailService->send()) {
-            return redirect()->to('/login')->with('success', 'Email reset password telah dikirim. Silakan cek inbox Anda.');
+            session()->setFlashdata('success', 'Email reset password telah dikirim. Silakan cek inbox Anda.');
+            return redirect()->to('/login');
         } else {
             return redirect()->back()->with('error', 'Gagal mengirim email reset password. Silakan coba lagi.');
         }
@@ -234,7 +251,8 @@ class Auth extends Controller
             ->first();
 
         if (!$user) {
-            return redirect()->to('/login')->with('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+            session()->setFlashdata('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+            return redirect()->to('/login');
         }
 
         return view('layouts/auth', [
@@ -256,21 +274,32 @@ class Auth extends Controller
             return redirect()->back()->with('error', 'Password dan konfirmasi password tidak cocok.');
         }
 
+        if (strlen($password) < 6) {
+            return redirect()->back()->with('error', 'Password minimal 6 karakter.');
+        }
+
         $user = $this->userModel->where('reset_token', $token)
             ->where('reset_token_expires >', date('Y-m-d H:i:s'))
             ->first();
 
         if (!$user) {
-            return redirect()->to('/login')->with('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+            session()->setFlashdata('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+            return redirect()->to('/login');
         }
 
         // Update password and clear reset token
-        $this->userModel->update($user['id'], [
+        $updateResult = $this->userModel->update($user['id'], [
             'password' => password_hash($password, PASSWORD_DEFAULT),
             'reset_token' => null,
             'reset_token_expires' => null
         ]);
 
-        return redirect()->to('/login')->with('success', 'Password berhasil diubah. Silakan login dengan password baru Anda.');
+        if ($updateResult) {
+            session()->setFlashdata('success', 'Password berhasil diubah. Silakan login dengan password baru Anda.');
+        } else {
+            session()->setFlashdata('error', 'Gagal mengubah password. Silakan coba lagi.');
+        }
+
+        return redirect()->to('/login');
     }
 }
