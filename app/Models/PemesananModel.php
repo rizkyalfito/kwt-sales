@@ -137,7 +137,7 @@ class PemesananModel extends Model
     public function getPemesananWithProdukWithFilter($id = null, $month = null)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, u.nama as nama_user');
+        $builder->select('p.*, pr.nama_produk, pr.harga as harga_satuan, pr.nama_kategori, pr.satuan, u.nama as nama_user');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
         $builder->join('users u', 'u.id = p.user', 'left');
 
@@ -195,7 +195,7 @@ class PemesananModel extends Model
     public function getRiwayatPemesananByUser($userId)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.nama_kategori');
+        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, pr.satuan');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
         $builder->where('p.user', $userId);
         $builder->orderBy('p.id', 'DESC');
@@ -333,7 +333,7 @@ class PemesananModel extends Model
     public function getPemesananByPaymentStatus($paymentStatus, $limit = null)
     {
         $builder = $this->db->table($this->table . ' p');
-        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, u.nama as nama_user');
+        $builder->select('p.*, pr.nama_produk, pr.nama_kategori, pr.satuan, u.nama as nama_user');
         $builder->join('produk pr', 'pr.id = p.produk', 'left');
         $builder->join('users u', 'u.id = p.user', 'left');
         $builder->where('p.status_pembayaran', $paymentStatus);
