@@ -28,6 +28,10 @@ $routes->group('', ['filter' => 'guest'], function ($routes) {
     $routes->post('login', 'Auth::postLogin');
     $routes->get('/register', 'Auth::register');
     $routes->post('/register', 'Auth::postRegister');
+    $routes->get('/forgot-password', 'Auth::forgotPassword');
+    $routes->post('/forgot-password', 'Auth::sendResetEmail');
+    $routes->get('/reset-password/(:any)', 'Auth::resetPassword/$1');
+    $routes->post('/reset-password', 'Auth::updatePassword');
 });
 
 $routes->group('', ['filter' => 'auth'], function ($routes) {

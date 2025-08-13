@@ -53,9 +53,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Bank:</strong> BCA</p>
-                                <p><strong>Nomor Rekening:</strong> 1234567890</p>
-                                <p><strong>Atas Nama:</strong> KWT Sales</p>
+                                <p><strong>Bank:</strong> BRI</p>
+                                <p><strong>Nomor Rekening:</strong> 5004-01-027459-53-8</p>
+                                <p><strong>Atas Nama:</strong> KELOMPOK WANITA TANI</p>
                             </div>
                             <div class="col-md-6">
                                 <div class="alert alert-warning">

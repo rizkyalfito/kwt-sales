@@ -87,7 +87,7 @@
                                             <?= $produkModel->formatRupiah($item['harga']) ?>
                                         </span>
                                         <span class="text-muted ms-1">
-                                            <?= (stripos($item['nama_kategori'], 'sayur') !== false) ?> /<?= strtoupper($item['satuan']) ?>
+                                            /<?= strtoupper($item['satuan'] ?? 'kg') ?>
                                         </span>
                                     </div>
                                 </div>
@@ -97,7 +97,7 @@
                                     <div class="d-flex align-items-center">
                                         <i class="bi bi-box-seam text-info me-2"></i>
                                         <span class="text-muted fs-6">
-                                            <strong>Stok:</strong> <?= esc($item['stok']) ?> <?= strtoupper($item['satuan']) ?>
+                                            <strong>Stok:</strong> <?= esc($item['stok']) ?> <?= strtoupper($item['satuan'] ?? 'kg') ?>
                                         </span>
                                     </div>
                                 </div>

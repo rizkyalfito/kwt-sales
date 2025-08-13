@@ -77,7 +77,6 @@
                 <?php foreach ($riwayatPemesanan as $pesanan): ?>
                     <?php
                     $statusConfig = getStatusConfig($pesanan['status']);
-                    $unit = (stripos($pesanan['nama_kategori'], 'sayur') !== false) ? 'ikat' : 'kg';
                     ?>
                     
                     <div class="col-lg-6" data-status="<?= $pesanan['status'] ?>">
@@ -85,7 +84,7 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
-                                        <h5 class="card-title fw-bold mb-1"><?= esc($pesanan['nama_produk']) ?> - <?= $pesanan['jumlah'] ?> <?= $unit ?></h5> &nbsp;
+                                        <h5 class="card-title fw-bold mb-1"><?= esc($pesanan['nama_produk']) ?> - <?= $pesanan['jumlah'] ?> <?= $pesanan['satuan'] ?></h5> &nbsp;
                                         <small class="text-muted">
                                             <i class="bi bi-calendar me-1"></i><?= date('d M Y', strtotime($pesanan['tanggal_pesan'])) ?>
                                         </small>
@@ -431,7 +430,6 @@ function viewOrderDetail(orderId) {
         .then(data => {
             if (data.success) {
                 const order = data.data;
-                const unit = order.nama_kategori.toLowerCase().includes('sayur') ? 'ikat' : 'kg';
                 const statusConfig = getStatusConfigJS(order.status);
                 
                 content.innerHTML = `
@@ -454,7 +452,7 @@ function viewOrderDetail(orderId) {
                             <div class="bg-light p-3 rounded-3">
                                 <p class="mb-2"><strong>Produk:</strong> ${escapeHtml(order.nama_produk)}</p>
                                 <p class="mb-2"><strong>Kategori:</strong> ${escapeHtml(order.nama_kategori)}</p>
-                                <p class="mb-2"><strong>Jumlah:</strong> ${order.jumlah} ${unit}</p>
+                                <p class="mb-2"><strong>Jumlah:</strong> ${order.jumlah} ${order.satuan}</p>
                                 <p class="mb-2"><strong>Harga Satuan:</strong> Rp ${parseInt(order.harga_satuan).toLocaleString('id-ID')}</p>
                                 <p class="mb-0"><strong>Total:</strong> Rp ${parseInt(order.total_harga).toLocaleString('id-ID')}</p>
                             </div>

@@ -45,43 +45,77 @@ class Pesanan extends Controller
 
     public function getSalesPerMonth($status)
     {
-        // Validasi input status (jika perlu)
-        $allowedStatus = ['selesai', 'dibatalkan', 'dikirim'];
-        if (!in_array($status, $allowedStatus)) {
+        // Mapping status dari frontend ke database
+        $statusMapping = [
+            'selesai' => ['completed', 'selesai'], // Coba kedua status
+            'dibatalkan' => ['cancelled', 'dibatalkan'], // Coba kedua status
+            'dikirim' => ['shipped', 'dikirim'],
+            'diproses' => ['processing', 'diproses']
+        ];
+
+        // Cek apakah status valid
+        if (!array_key_exists($status, $statusMapping)) {
             return $this->response->setJSON([
-                'error' => 'Status tidak valid.'
+                'error' => 'Status tidak valid.',
+                'labels' => [],
+                'data' => [],
+                'countData' => []
             ])->setStatusCode(400);
         }
 
-        // Ambil data total per bulan untuk status tertentu
-        $builder = $this->db->table('pemesanan');
-        $builder->select("DATE_FORMAT(tanggal_pesan, '%Y-%m') as bulan, SUM(total_harga) as total");
-        $builder->where('status', $status);
-        $builder->groupBy('bulan');
-        $builder->orderBy('bulan', 'ASC');
+        $dbStatuses = $statusMapping[$status];
 
-        $result = $builder->get()->getResult();
+        try {
+            // Query untuk mendapatkan data penjualan per bulan (nilai & jumlah)
+            $builder = $this->db->table('pemesanan');
+            $builder->select("MONTH(tanggal_pesan) as bulan_num, YEAR(tanggal_pesan) as tahun, SUM(total_harga) as total, COUNT(*) as jumlah_pesanan");
+            $builder->whereIn('status', $dbStatuses);
+            $builder->where('YEAR(tanggal_pesan)', date('Y')); // Hanya tahun ini
+            $builder->groupBy('YEAR(tanggal_pesan), MONTH(tanggal_pesan)');
+            $builder->orderBy('tahun ASC, bulan_num ASC');
 
-        // Format hasil ke dalam mapping bulan => total
-        $salesData = [];
-        foreach ($result as $row) {
-            $salesData[$row->bulan] = (float) $row->total;
+            $result = $builder->get()->getResult();
+
+            // Mapping nama bulan dalam bahasa Indonesia
+            $namaBulan = [
+                1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+                5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+                9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+            ];
+
+            // Siapkan data untuk chart
+            $salesData = [];
+            $countData = [];
+            foreach ($result as $row) {
+                $salesData[$row->bulan_num] = (float) $row->total;
+                $countData[$row->bulan_num] = (int) $row->jumlah_pesanan;
+            }
+
+            // Generate semua bulan (1-12) dengan data 0 jika tidak ada
+            $labels = [];
+            $data = [];
+            $counts = [];
+
+            for ($i = 1; $i <= 12; $i++) {
+                $labels[] = $namaBulan[$i];
+                $data[] = $salesData[$i] ?? 0;
+                $counts[] = $countData[$i] ?? 0;
+            }
+
+            return $this->response->setJSON([
+                'labels' => $labels,
+                'data' => $data,
+                'countData' => $counts
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error getting sales data: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'error' => 'Terjadi kesalahan saat mengambil data.',
+                'labels' => [],
+                'data' => [],
+                'countData' => []
+            ])->setStatusCode(500);
         }
-
-        // Generate bulan 1-12 untuk tahun berjalan
-        $year = date('Y');
-        $labels = [];
-        $data = [];
-
-        for ($i = 1; $i <= 12; $i++) {
-            $bulan = sprintf('%s-%02d', $year, $i);
-            $labels[] = $bulan;
-            $data[] = $salesData[$bulan] ?? 0;
-        }
-
-        return $this->response->setJSON([
-            'labels' => $labels,
-            'data' => $data
-        ]);
     }
 }
