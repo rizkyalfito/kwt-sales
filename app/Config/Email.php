@@ -9,7 +9,7 @@ class Email extends BaseConfig
     /**
      * @var string
      */
-    public $fromEmail = 'ikycollege@gmail.com';
+    public $fromEmail = 'kelompokwanitatani91@gmail.com';
 
     /**
      * @var string
@@ -54,14 +54,14 @@ class Email extends BaseConfig
      *
      * @var string
      */
-    public $SMTPUser = 'ikycollege@gmail.com';
+    public $SMTPUser = 'kelompokwanitatani91@gmail.com';
 
     /**
      * SMTP Password
      *
      * @var string
      */
-    public $SMTPPass = 'rfdk dcsg dztn jwdv'; // Akan diisi dengan app password
+    public $SMTPPass = 'jmua zdeb esev lvfg'; // Akan diisi dengan app password
 
     /**
      * SMTP Port

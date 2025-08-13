@@ -24,8 +24,8 @@ class EmailService
         $this->mail->isSMTP();
         $this->mail->Host       = $config->SMTPHost ?? 'smtp.gmail.com';
         $this->mail->SMTPAuth   = true;
-        $this->mail->Username   = $config->SMTPUser ?? 'ikycollege@gmail.com';
-        $this->mail->Password   = $config->SMTPPass ?? 'rfdk dcsg dztn jwdv';
+        $this->mail->Username   = $config->SMTPUser ?? 'kelompokwanitatani91@gmail.com';
+        $this->mail->Password   = $config->SMTPPass ?? 'jmua zdeb esev lvfg';
         $this->mail->SMTPSecure = $config->SMTPCrypto ?? 'tls';
         $this->mail->Port       = $config->SMTPPort ?? 587;
 
