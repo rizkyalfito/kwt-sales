@@ -174,4 +174,103 @@ class Auth extends Controller
         $this->session->destroy();
         return redirect()->to('/login');
     }
+
+    public function forgotPassword()
+    {
+        return view('layouts/auth', ['content' => view('pages/forgot-password')]);
+    }
+
+    public function sendResetEmail()
+    {
+        $email = $this->request->getPost('email');
+        
+        if (!$email) {
+            return redirect()->back()->with('error', 'Email wajib diisi.');
+        }
+
+        $user = $this->userModel->where('email', $email)->first();
+        
+        if (!$user) {
+            return redirect()->back()->with('error', 'Email tidak ditemukan dalam sistem kami.');
+        }
+
+        // Generate reset token
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        // Update user with reset token
+        $this->userModel->update($user['id'], [
+            'reset_token' => $token,
+            'reset_token_expires' => $expires
+        ]);
+
+        // Send reset email
+        $resetLink = site_url("/reset-password/{$token}");
+        
+        $emailService = \Config\Services::email();
+        $emailService->setTo($email);
+        $emailService->setFrom('noreply@kwtsales.com', 'Kelompok Wanita Tani');
+        $emailService->setSubject('Reset Password - Kelompok Wanita Tani');
+        
+        $emailContent = view('emails/reset-password', [
+            'email' => $email,
+            'resetLink' => $resetLink
+        ]);
+        
+        $emailService->setMessage($emailContent);
+        $emailService->setMailType('html');
+
+        if ($emailService->send()) {
+            return redirect()->to('/login')->with('success', 'Email reset password telah dikirim. Silakan cek inbox Anda.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal mengirim email reset password. Silakan coba lagi.');
+        }
+    }
+
+    public function resetPassword($token)
+    {
+        $user = $this->userModel->where('reset_token', $token)
+            ->where('reset_token_expires >', date('Y-m-d H:i:s'))
+            ->first();
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+        }
+
+        return view('layouts/auth', [
+            'content' => view('pages/reset-password', ['token' => $token])
+        ]);
+    }
+
+    public function updatePassword()
+    {
+        $token = $this->request->getPost('token');
+        $password = $this->request->getPost('password');
+        $confirmPassword = $this->request->getPost('confirm_password');
+
+        if (!$token || !$password || !$confirmPassword) {
+            return redirect()->back()->with('error', 'Semua field wajib diisi.');
+        }
+
+        if ($password !== $confirmPassword) {
+            return redirect()->back()->with('error', 'Password dan konfirmasi password tidak cocok.');
+        }
+
+        $user = $this->userModel->where('reset_token', $token)
+            ->where('reset_token_expires >', date('Y-m-d H:i:s'))
+            ->first();
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Token reset password tidak valid atau telah kadaluarsa.');
+        }
+
+        // Update password and clear reset token
+        $this->userModel->update($user['id'], [
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'reset_token' => null,
+            'reset_token_expires' => null
+        ]);
+
+        return redirect()->to('/login')->with('success', 'Password berhasil diubah. Silakan login dengan password baru Anda.');
+    }
 }

@@ -15,6 +15,7 @@
     </div>
     <button type="submit" class="btn btn-primary w-100">Login</button>
     <div class="d-flex flex-column mt-3 text-center">
+        <a href="<?= base_url('/forgot-password') ?>">Lupa password?</a>
         <a href="<?= base_url('/register') ?>">Belum punya akun? Daftar disini</a>
         <a href="<?= base_url('/') ?>">Kembali ke Beranda</a>
     </div>
