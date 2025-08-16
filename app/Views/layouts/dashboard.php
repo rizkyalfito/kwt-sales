@@ -49,9 +49,16 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4 pt-5">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4 pt-4">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar ">
+      <div class="logo d-flex align-items-center mb-3">
+        <a href="/" class="d-flex align-items-center text-decoration-none text-bold">
+          <i class="fas fa-home me-2"></i>
+          <span>KWT SALES</span>
+        </a>
+      </div>
+
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
