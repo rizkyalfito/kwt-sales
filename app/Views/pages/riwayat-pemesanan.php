@@ -104,6 +104,28 @@
                                         <span class="fw-medium">#<?= $pesanan['pemesanan'] ?></span>
                                     </div>
                                 </div>
+                                
+                                <!-- Informasi Pengiriman untuk pesanan yang sudah dikirim -->
+                                <?php if (in_array($pesanan['status'], ['shipped', 'completed']) && !empty($pesanan['ekspedisi_nama'])): ?>
+                                <div class="border-start border-info border-3 ps-3 mb-3">
+                                    <small class="text-info fw-bold d-block">
+                                        <i class="bi bi-truck me-1"></i>Informasi Pengiriman
+                                    </small>
+                                    <div class="mt-2">
+                                        <small class="d-block">
+                                            <strong>Ekspedisi:</strong> <?= esc($pesanan['ekspedisi_nama']) ?>
+                                            <?php if (!empty($pesanan['ekspedisi_resi'])): ?>
+                                            <br><strong>No. Resi:</strong> <?= esc($pesanan['ekspedisi_resi']) ?>
+                                            <?php endif; ?>
+                                        </small>
+                                        <?php if (!empty($pesanan['tanggal_pengiriman'])): ?>
+                                        <small class="d-block mt-1">
+                                            <strong>Tgl Kirim:</strong> <?= date('d M Y', strtotime($pesanan['tanggal_pengiriman'])) ?>
+                                        </small>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
 
                                 <div class="d-flex gap-2">
                                     <button class="btn btn-outline-primary btn-sm rounded-pill flex-fill" onclick="viewOrderDetail(<?= $pesanan['id'] ?>)">
@@ -466,6 +488,29 @@ function viewOrderDetail(orderId) {
                                 <p class="mb-0"><strong>Pemesan:</strong> ${escapeHtml(order.nama_user)}</p>
                             </div>
                         </div>
+                        ${(order.status === 'shipped' || order.status === 'completed') && (order.ekspedisi_nama || order.pengirim_nama) ? `
+                        <div class="col-12">
+                            <h6 class="fw-bold mb-3">Informasi Pengiriman</h6>
+                            <div class="bg-light p-3 rounded-3">
+                                ${order.ekspedisi_nama ? `
+                                <p class="mb-2"><strong>Ekspedisi:</strong> ${order.ekspedisi_nama.toUpperCase()}</p>
+                                <p class="mb-2"><strong>No. Resi:</strong> ${order.ekspedisi_resi || '-'}</p>
+                                ` : ''}
+                                ${order.pengirim_nama ? `
+                                <p class="mb-2"><strong>Pengirim:</strong> ${escapeHtml(order.pengirim_nama)}</p>
+                                <p class="mb-2"><strong>Kontak:</strong> ${order.pengirim_kontak || '-'}</p>
+                                <p class="mb-2"><strong>Alamat:</strong> ${escapeHtml(order.pengirim_alamat || '-')}</p>
+                                ` : ''}
+                                ${order.kendaraan_plat_nomor ? `
+                                <p class="mb-2"><strong>Kendaraan:</strong> ${order.kendaraan_merk || ''} ${order.kendaraan_jenis || ''}</p>
+                                <p class="mb-0"><strong>Plat Nomor:</strong> ${order.kendaraan_plat_nomor}</p>
+                                ` : ''}
+                                ${order.tanggal_pengiriman ? `
+                                <p class="mb-0"><strong>Tanggal Kirim:</strong> ${formatDate(order.tanggal_pengiriman)}</p>
+                                ` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
                         ${order.status === 'pending_payment' && order.metode_pembayaran === 'transfer' ? `
                         <div class="col-12">
                             <div class="text-center">
