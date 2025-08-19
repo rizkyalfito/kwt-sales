@@ -118,4 +118,50 @@ class Pesanan extends Controller
             ])->setStatusCode(500);
         }
     }
+
+    public function updatePengiriman($id)
+    {
+        $data = $this->request->getPost();
+        
+        // Validasi data
+        $rules = [
+            'pengirim_nama' => 'permit_empty|string|max_length[100]',
+            'pengirim_kontak' => 'permit_empty|string|max_length[20]',
+            'pengirim_alamat' => 'permit_empty|string',
+            'kendaraan_plat_nomor' => 'permit_empty|string|max_length[20]',
+            'kendaraan_jenis' => 'permit_empty|string|max_length[50]',
+            'kendaraan_merk' => 'permit_empty|string|max_length[50]',
+            'ekspedisi_nama' => 'permit_empty|in_list[jne,jnt,sicepat,tiki,pos,lainnya]',
+            'ekspedisi_resi' => 'permit_empty|string|max_length[50]',
+            'tanggal_pengiriman' => 'permit_empty|valid_date',
+        ];
+        
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', implode(', ', $this->validator->getErrors()));
+        }
+        
+        // Siapkan data update
+        $updateData = [
+            'pengirim_nama' => $data['pengirim_nama'] ?? null,
+            'pengirim_kontak' => $data['pengirim_kontak'] ?? null,
+            'pengirim_alamat' => $data['pengirim_alamat'] ?? null,
+            'kendaraan_plat_nomor' => $data['kendaraan_plat_nomor'] ?? null,
+            'kendaraan_jenis' => $data['kendaraan_jenis'] ?? null,
+            'kendaraan_merk' => $data['kendaraan_merk'] ?? null,
+            'ekspedisi_nama' => $data['ekspedisi_nama'] ?? null,
+            'ekspedisi_resi' => $data['ekspedisi_resi'] ?? null,
+            'tanggal_pengiriman' => $data['tanggal_pengiriman'] ?? null,
+        ];
+        
+        // Hapus jenis_pengiriman dari data karena tidak ada di database
+        unset($updateData['jenis_pengiriman']);
+        
+        $result = $this->pemesananModel->update($id, $updateData);
+        
+        if ($result) {
+            return redirect()->to('/pesanan')->with('success', 'Informasi pengiriman berhasil diperbarui');
+        } else {
+            return redirect()->back()->with('error', 'Gagal memperbarui informasi pengiriman');
+        }
+    }
 }

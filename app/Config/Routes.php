@@ -59,10 +59,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('/kontak/simpan', 'Kontak::save');
         $routes->get('/kontak/ubah/(:num)', 'Kontak::edit/$1');
         $routes->post('/kontak/update/(:num)', 'Kontak::update/$1');
+        $routes->get('/kontak/hapus/(:num)', 'Kontak::delete/$1');
 
         $routes->get('/pesanan', 'Pesanan::index');
         $routes->get('/pesanan/sales-chart/(:segment)', 'Pesanan::getSalesPerMonth/$1');
         $routes->get('/pesanan/ubah/status/(:segment)/(:num)', 'Pesanan::updateStatusPesanan/$1/$2');
+        $routes->post('/pesanan/update-pengiriman/(:num)', 'Pesanan::updatePengiriman/$1');
 
         $routes->get('/laporan', 'Laporan::index');
     });

@@ -24,6 +24,18 @@ class PemesananModel extends Model
         'metode_pembayaran',
         'bukti_pembayaran',
         'status_pembayaran',
+        'pengirim_nama',
+        'pengirim_kontak',
+        'pengirim_alamat',
+        'kendaraan_plat_nomor',
+        'kendaraan_jenis',
+        'kendaraan_merk',
+        'ekspedisi_nama',
+        'ekspedisi_resi',
+        'tanggal_pengiriman',
+        'status_pembatalan',
+        'tanggal_pembatalan',
+        'dikonfirmasi_oleh',
     ];
 
     protected $useTimestamps = false;
