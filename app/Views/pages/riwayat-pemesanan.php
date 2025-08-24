@@ -76,7 +76,7 @@
             <?php if (!empty($riwayatPemesanan)): ?>
                 <?php foreach ($riwayatPemesanan as $pesanan): ?>
                     <?php
-                    $statusConfig = getStatusConfig($pesanan['status']);
+                    $statusConfig = getStatusConfig($pesanan['status'], $pesanan['status_pembatalan']);
                     ?>
                     
                     <div class="col-lg-6" data-status="<?= $pesanan['status'] ?>">
@@ -239,7 +239,7 @@
 </div>
 
 <?php
-function getStatusConfig($status) {
+function getStatusConfig($status, $status_pembatalan) {
     $configs = [
         'pending_payment' => [
             'label' => 'Menunggu Pembayaran',
@@ -278,7 +278,7 @@ function getStatusConfig($status) {
             'color' => 'success'
         ],
         'cancelled' => [
-            'label' => 'Dibatalkan',
+            'label' => getLabelCancelledOrder($status_pembatalan),
             'badge' => 'bg-danger-subtle text-danger',
             'icon' => 'bi-x-circle-fill',
             'color' => 'danger'
@@ -291,6 +291,19 @@ function getStatusConfig($status) {
         'icon' => 'bi-hourglass-split',
         'color' => 'secondary'
     ];
+}
+
+function getLabelCancelledOrder($status_pembatalan)
+{
+    if  ($status_pembatalan === 'menunggu_konfirmasi') {
+        return 'Menunggu Konfirmasi Pembatalan';
+    } else if ($status_pembatalan === 'dikonfirmasi') {
+        return 'Dibatalkan';
+    } else if ($status_pembatalan === 'ditolak') {
+        return 'Pembatalan Ditolak';
+    } else {
+        return 'Tidak Dibalkan';
+    }
 }
 
 function getOrderProgress($status) {

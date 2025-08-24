@@ -34,6 +34,7 @@
                             <th>Bukti Pembayaran</th>
                             <th>Status</th>
                             <th>Info Pengiriman</th>
+                            <th>Alasan Pembatalan</th>
                             <th>Aksi</th>
                         </tr>
                         </thead>
@@ -64,9 +65,19 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDetail<?= $booking['id'] ?>">
-                                        Detail
-                                    </button>
+                                    <?php if ($booking['alasan_pembatalan']) : ?>
+                                        <?= $booking['alasan_pembatalan'] ?>
+                                    <?php else : ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+
+                                    <?php if ($booking['status'] !== 'cancelled') : ?>
+                                        <button type="button" class="btn btn-info btn-sm mb-1" data-toggle="modal" data-target="#modalDetail<?= $booking['id'] ?>">
+                                            Detail
+                                        </button>
+                                    <?php endif; ?>
                                     
                                     <?php if ($booking['status'] === 'payment_confirmed') : ?>
                                         <a href="<?= base_url('pesanan/ubah/status/processing/') . $booking['id'] ?>" class="btn btn-info btn-sm">
@@ -76,10 +87,10 @@
                                             Tolak Pembayaran
                                         </a>
                                     <?php elseif ($booking['status'] === 'processing') : ?>
-                                        <a href="<?= base_url('pesanan/ubah/status/shipped/') . $booking['id'] ?>" class="btn btn-warning btn-sm">
+                                        <a href="<?= base_url('pesanan/ubah/status/shipped/') . $booking['id'] ?>" class="btn btn-warning btn-sm mb-1">
                                             Kirim
                                         </a>
-                                        <a href="<?= base_url('pesanan/ubah/status/cancelled/') . $booking['id'] ?>" class="btn btn-danger btn-sm">
+                                        <a href="<?= base_url('pesanan/ubah/status/cancelled/') . $booking['id'] ?>" class="btn btn-danger btn-sm mb-1">
                                             Batalkan
                                         </a>
                                     <?php elseif ($booking['status'] === 'shipped') : ?>
@@ -89,7 +100,20 @@
                                     <?php elseif ($booking['status'] === 'payment_rejected') : ?>
                                         <span class="badge text-bg-danger">Pembayaran Ditolak</span>
                                     <?php elseif ($booking['status'] === 'cancelled') : ?>
-                                        <span class="badge text-bg-danger">Dibatalkan</span>
+                                        <?php if ($booking['status_pembatalan'] === 'ditolak') : ?>
+                                            <span class="badge text-bg-danger">Dibatalkan</span>
+                                        <?php elseif ($booking['status_pembatalan'] !== 'dikonfirmasi' && $booking['status_pembatalan'] !== 'ditolak') : ?>
+                                            <a href="<?= base_url('pesanan/ubah/status/pembatalan/dikonfirmasi/') . $booking['id'] ?>" class="btn btn-warning btn-sm mb-2">
+                                                ACC Pembatalan
+                                            </a>
+                                            <a href="<?= base_url('pesanan/ubah/status/pembatalan/ditolak/') . $booking['id'] ?>" class="btn btn-danger btn-sm">
+                                                Tolak Pembatalan
+                                            </a>
+                                        <?php else : ?>
+                                            <span class="badge text-bg-danger">
+                                                Dibatalkan
+                                            </span>
+                                        <?php endif; ?>
                                     <?php elseif ($booking['status'] === 'completed') : ?>
                                         <span class="badge text-bg-success">Selesai</span>
                                     <?php endif; ?>

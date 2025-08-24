@@ -43,6 +43,21 @@ class Pesanan extends Controller
         }
     }
 
+    public function updateStatusPembatalan($status, $id)
+    {
+        $this->db->transStart();
+
+        $updateStatus = $this->pemesananModel->updateStatusPembatalan($id, $status);
+
+        if ($updateStatus) {
+            $this->db->transComplete();
+            return redirect()->to('/pesanan')->with('success', 'Status Pembatalan Berhasil Diubah');
+        } else {
+            $this->db->transRollBack();
+            return redirect()->to('/pesanan')->with('error', 'Status Pembatalan Gagal Diubah');
+        }
+    }
+
     public function getSalesPerMonth($status)
     {
         // Mapping status dari frontend ke database

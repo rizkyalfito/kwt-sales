@@ -91,7 +91,8 @@ class RiwayatPemesanan extends Controller
         // Update status and save cancellation reason
         $updateData = [
             'status' => 'cancelled',
-            'alasan_pembatalan' => $alasanPembatalan
+            'alasan_pembatalan' => $alasanPembatalan,
+            'status_pembatalan' => 'menunggu_konfirmasi'
         ];
         
         if ($this->pemesananModel->update($id, $updateData)) {

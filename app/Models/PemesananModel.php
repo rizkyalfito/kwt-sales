@@ -204,6 +204,32 @@ class PemesananModel extends Model
         return $result;
     }
 
+    public function updateStatusPembatalan($id, $status_pembatalan)
+    {
+        $allowedStatus = ['dikonfirmasi', 'ditolak'];
+
+        if (!in_array($status_pembatalan, $allowedStatus)) {
+            log_message('error', "Invalid status update attempt: $status_pembatalan for order ID: $id");
+            return false;
+        }
+
+        $updateData = ['status_pembatalan' => $status_pembatalan];
+
+        if ($status_pembatalan === 'ditolak') {
+            $updateData['status'] = 'processing';
+        }
+
+        $result = $this->update($id, $updateData);
+
+        if ($result) {
+            log_message('info', "Status updated successfully for order ID: $id to status: $status_pembatalan");
+        } else {
+            log_message('error', "Failed to update status for order ID: $id to status: $status_pembatalan");
+        }
+
+        return $result;
+    }
+
     public function getRiwayatPemesananByUser($userId)
     {
         $builder = $this->db->table($this->table . ' p');

@@ -64,6 +64,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('/pesanan', 'Pesanan::index');
         $routes->get('/pesanan/sales-chart/(:segment)', 'Pesanan::getSalesPerMonth/$1');
         $routes->get('/pesanan/ubah/status/(:segment)/(:num)', 'Pesanan::updateStatusPesanan/$1/$2');
+        $routes->get('/pesanan/ubah/status/pembatalan/(:segment)/(:num)', 'Pesanan::updateStatusPembatalan/$1/$2');
         $routes->post('/pesanan/update-pengiriman/(:num)', 'Pesanan::updatePengiriman/$1');
 
         $routes->get('/laporan', 'Laporan::index');
